@@ -6,11 +6,14 @@
 // Phase 1 scope: hierarchy, transforms, cameras, lights, and primitive
 // Box/Cylinder geometry. Meshes using organic/subdivided/vector geometry are
 // left as TODO comments (68 of them) -- phase 3 bakes those to
-// glTF assets. Materials are gray placeholders -- phase 2 resolves the real
-// layered material stack per shared material id.
+// glTF assets. Materials come from phase 2's build-materials.js (real
+// layered-material translation, see that file for per-material notes).
 import * as THREE from 'three';
+import { buildMaterials } from './build-materials.js';
 
 export function buildScene() {
+  const materials = buildMaterials();
+
   const boxGeometry = new THREE.BoxGeometry(
     5,
     16,
@@ -50,9 +53,6 @@ export function buildScene() {
     6.283185,
   ); /* cornerRadius=8, hollow=0 not represented, see phase notes */
 
-  const material_6bdc5132 = new THREE.MeshStandardMaterial({ color: 0x999999 }); // placeholder -- phase 2 resolves the real layered material
-  const material_342265b2 = new THREE.MeshStandardMaterial({ color: 0x999999 }); // placeholder -- phase 2 resolves the real layered material
-
   const root = new THREE.Group();
   root.name = 'Scene 1';
 
@@ -61,7 +61,7 @@ export function buildScene() {
   Camera_2.rotation.set(0.014486, 0, 0);
   root.add(Camera_2);
 
-  const Point_Light = new THREE.PointLight(0xffffff, 5);
+  const Point_Light = new THREE.PointLight(0xffffff, 5000000); // intensity includes an empirical distance-falloff calibration factor, see DISTANCE_FALLOFF_LIGHT_CALIBRATION in generate-scene.mjs
   Point_Light.position.set(-595, 579, -393);
   root.add(Point_Light);
 
@@ -148,7 +148,7 @@ export function buildScene() {
   Neck.position.set(0.939879, 106.841243, -10.699503);
   Top_part.add(Neck);
 
-  const Cube = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const Cube = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   Cube.position.set(0, -13.239626, -0.347205);
   Cube.rotation.set(0.122173, 0, 0);
   Cube.scale.set(1.25, 1.25, 1.25);
@@ -156,7 +156,10 @@ export function buildScene() {
   Cube.receiveShadow = true;
   Neck.add(Cube);
 
-  const Cylinder_3 = new THREE.Mesh(cylinderGeometry, material_342265b2);
+  const Cylinder_3 = new THREE.Mesh(
+    cylinderGeometry,
+    materials['342265b2-6982-4c49-b670-fee0149640a3'],
+  );
   Cylinder_3.position.set(0, -34.319604, -3.149482);
   Cylinder_3.rotation.set(0.20565, 0, 0);
   Cylinder_3.scale.set(1, 1, 1);
@@ -176,7 +179,10 @@ export function buildScene() {
   Group_2.scale.set(-1, 1, 1);
   Group_3.add(Group_2);
 
-  const Cylinder_4 = new THREE.Mesh(cylinderGeometry_2, material_6bdc5132);
+  const Cylinder_4 = new THREE.Mesh(
+    cylinderGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
   Cylinder_4.position.set(0, 0, 0);
   Cylinder_4.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4.scale.set(1, 1, 1);
@@ -189,7 +195,10 @@ export function buildScene() {
   Group.position.set(-20.598127, 0, 0);
   Group_3.add(Group);
 
-  const Cylinder_4_2 = new THREE.Mesh(cylinderGeometry_2, material_6bdc5132);
+  const Cylinder_4_2 = new THREE.Mesh(
+    cylinderGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
   Cylinder_4_2.position.set(0, 0, 0);
   Cylinder_4_2.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4_2.scale.set(1, 1, 1);
@@ -197,7 +206,10 @@ export function buildScene() {
   Cylinder_4_2.receiveShadow = true;
   Group.add(Cylinder_4_2);
 
-  const Cylinder = new THREE.Mesh(cylinderGeometry_3, material_6bdc5132);
+  const Cylinder = new THREE.Mesh(
+    cylinderGeometry_3,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
   Cylinder.position.set(0, 12.026392, 4.411749);
   Cylinder.rotation.set(0.130289, 0, 0);
   Cylinder.scale.set(1, 1, 1);
@@ -208,84 +220,84 @@ export function buildScene() {
   const group = new THREE.Group();
   Neck.add(group);
 
-  const mesh = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh.position.set(11, 0, 0);
   mesh.rotation.set(0, 0, 0.139626);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   group.add(mesh);
 
-  const mesh_2 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_2 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_2.position.set(9.526279, 0, 5.5);
   mesh_2.rotation.set(0, -0.523599, 0.139626);
   mesh_2.castShadow = true;
   mesh_2.receiveShadow = true;
   group.add(mesh_2);
 
-  const mesh_3 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_3 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_3.position.set(5.5, 0, 9.526279);
   mesh_3.rotation.set(0, -1.047198, 0.139626);
   mesh_3.castShadow = true;
   mesh_3.receiveShadow = true;
   group.add(mesh_3);
 
-  const mesh_4 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_4 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_4.position.set(0, 0, 11);
   mesh_4.rotation.set(0, -1.570796, 0.139626);
   mesh_4.castShadow = true;
   mesh_4.receiveShadow = true;
   group.add(mesh_4);
 
-  const mesh_5 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_5 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_5.position.set(-5.5, 0, 9.526279);
   mesh_5.rotation.set(0, -2.094395, 0.139626);
   mesh_5.castShadow = true;
   mesh_5.receiveShadow = true;
   group.add(mesh_5);
 
-  const mesh_6 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_6 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_6.position.set(-9.526279, 0, 5.5);
   mesh_6.rotation.set(0, -2.617994, 0.139626);
   mesh_6.castShadow = true;
   mesh_6.receiveShadow = true;
   group.add(mesh_6);
 
-  const mesh_7 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_7 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_7.position.set(-11, 0, 0);
   mesh_7.rotation.set(0, -3.141593, 0.139626);
   mesh_7.castShadow = true;
   mesh_7.receiveShadow = true;
   group.add(mesh_7);
 
-  const mesh_8 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_8 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_8.position.set(-9.526279, 0, -5.5);
   mesh_8.rotation.set(0, -3.665191, 0.139626);
   mesh_8.castShadow = true;
   mesh_8.receiveShadow = true;
   group.add(mesh_8);
 
-  const mesh_9 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_9 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_9.position.set(-5.5, 0, -9.526279);
   mesh_9.rotation.set(0, -4.18879, 0.139626);
   mesh_9.castShadow = true;
   mesh_9.receiveShadow = true;
   group.add(mesh_9);
 
-  const mesh_10 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_10 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_10.position.set(0, 0, -11);
   mesh_10.rotation.set(0, -4.712389, 0.139626);
   mesh_10.castShadow = true;
   mesh_10.receiveShadow = true;
   group.add(mesh_10);
 
-  const mesh_11 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_11 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_11.position.set(5.5, 0, -9.526279);
   mesh_11.rotation.set(0, -5.235988, 0.139626);
   mesh_11.castShadow = true;
   mesh_11.receiveShadow = true;
   group.add(mesh_11);
 
-  const mesh_12 = new THREE.Mesh(boxGeometry, material_6bdc5132);
+  const mesh_12 = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
   mesh_12.position.set(9.526279, 0, -5.5);
   mesh_12.rotation.set(0, -5.759587, 0.139626);
   mesh_12.castShadow = true;
@@ -626,7 +638,10 @@ export function buildScene() {
   Group_2_2.scale.set(-1, 1, 1);
   Group_4_2.add(Group_2_2);
 
-  const Cylinder_4_3 = new THREE.Mesh(cylinderGeometry_2, material_6bdc5132);
+  const Cylinder_4_3 = new THREE.Mesh(
+    cylinderGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
   Cylinder_4_3.position.set(0, 0, 0);
   Cylinder_4_3.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4_3.scale.set(1, 1, 1);
@@ -639,7 +654,10 @@ export function buildScene() {
   Group_8.position.set(-20.598127, 0, 0);
   Group_4_2.add(Group_8);
 
-  const Cylinder_4_4 = new THREE.Mesh(cylinderGeometry_2, material_6bdc5132);
+  const Cylinder_4_4 = new THREE.Mesh(
+    cylinderGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
   Cylinder_4_4.position.set(0, 0, 0);
   Cylinder_4_4.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4_4.scale.set(1, 1, 1);

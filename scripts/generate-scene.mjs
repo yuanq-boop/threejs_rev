@@ -74,16 +74,14 @@ function emitGeometry(geom) {
   return ident;
 }
 
-// --- Materials: phase 1 placeholder only (phase 2 resolves the real layer
-// stack). One shared placeholder per materialId so the structure already
-// matches what phase 2 will slot real definitions into.
-const materialVars = new Map(); // materialId -> ident
+// --- Materials: resolved by phase 2's build-materials.js, keyed by shared
+// material id. Referenced directly as `materials["<uuid>"]` rather than
+// declaring a local const per id (build-materials.js already dedupes).
+const referencedMaterialIds = new Set();
 function emitMaterial(materialId) {
   if (!materialId) return null;
-  if (materialVars.has(materialId)) return materialVars.get(materialId);
-  const ident = uniqueIdent(`material_${materialId.slice(0, 8)}`);
-  materialVars.set(materialId, ident);
-  return ident;
+  referencedMaterialIds.add(materialId);
+  return `materials[${JSON.stringify(materialId)}]`;
 }
 
 const preludeLines = [];
@@ -91,6 +89,17 @@ const bodyLines = [];
 const cameraRefs = [];
 const lightRefs = [];
 let deferredCount = 0;
+
+// Spline's compiled PointLight/SpotLight intensity and Three.js's
+// physically-correct candela-based falloff (intensity/distance^2) are in
+// incompatible units -- an authored intensity of 5 at ~900 units away reads
+// as near-black. Empirically calibrated by sweeping multipliers (1 to 1.5e6)
+// against this scene's point light and eyeballing a non-blown-out match to
+// the reference renderer (scripts/calibrate-light.mjs); NOT a derived
+// physical conversion, and may need retuning for scenes with different
+// light-to-subject distances. Ambient/hemisphere/directional lights have no
+// distance falloff so are left unscaled.
+const DISTANCE_FALLOFF_LIGHT_CALIBRATION = 1e6;
 
 function emitLight(node, ident) {
   const l = node.light;
@@ -102,11 +111,15 @@ function emitLight(node, ident) {
     HemisphereLight: 'HemisphereLight',
   };
   const ctor = typeMap[l.lightType] ?? 'PointLight';
+  const usesFalloffCalibration = ctor === 'PointLight' || ctor === 'SpotLight';
+  const intensity = (l.intensity ?? 1) * (usesFalloffCalibration ? DISTANCE_FALLOFF_LIGHT_CALIBRATION : 1);
   const [r, g, b] = l.color;
   const colorHex = `0x${Math.round(r * 255).toString(16).padStart(2, '0')}${Math.round(g * 255)
     .toString(16)
     .padStart(2, '0')}${Math.round(b * 255).toString(16).padStart(2, '0')}`;
-  bodyLines.push(`const ${ident} = new THREE.${ctor}(${colorHex}, ${fmtNum(l.intensity ?? 1)});`);
+  bodyLines.push(
+    `const ${ident} = new THREE.${ctor}(${colorHex}, ${fmtNum(intensity)});${usesFalloffCalibration ? ' // intensity includes an empirical distance-falloff calibration factor, see DISTANCE_FALLOFF_LIGHT_CALIBRATION in generate-scene.mjs' : ''}`
+  );
   lightRefs.push({ name: node.name, ident });
 }
 
@@ -147,9 +160,15 @@ function walk(node, parentIdent) {
       );
       bodyLines.push(`const ${ident} = new THREE.Group();`);
     } else {
-      const matIdent = emitMaterial(node.materialId);
+      const matExpr = emitMaterial(node.materialId);
       ident = uniqueIdent(node.name || 'mesh');
-      bodyLines.push(`const ${ident} = new THREE.Mesh(${geomIdent}, ${matIdent ?? 'placeholderMaterial'});`);
+      if (!matExpr) {
+        bodyLines.push(
+          `// NOTE: "${node.name || '(unnamed)'}" has no materialId -- shouldn't happen for an authored mesh, falling back to a flat placeholder.`
+        );
+      }
+      const matSrc = matExpr ?? "new THREE.MeshStandardMaterial({ color: 0xff00ff })";
+      bodyLines.push(`const ${ident} = new THREE.Mesh(${geomIdent}, ${matSrc});`);
     }
   } else {
     // Scene / Group / Object3D -> THREE.Group
@@ -196,12 +215,6 @@ for (const child of inner.children ?? []) {
   walk(child, 'root');
 }
 
-for (const [, ident] of materialVars) {
-  preludeLines.push(
-    `const ${ident} = new THREE.MeshStandardMaterial({ color: 0x999999 }); // placeholder -- phase 2 resolves the real layered material`
-  );
-}
-
 const geometryDeclLines = [...geometryVars.values()].flatMap((g) => g.lines);
 
 const source = `// GENERATED FILE -- do not hand-edit.
@@ -212,11 +225,14 @@ const source = `// GENERATED FILE -- do not hand-edit.
 // Phase 1 scope: hierarchy, transforms, cameras, lights, and primitive
 // Box/Cylinder geometry. Meshes using organic/subdivided/vector geometry are
 // left as TODO comments (${deferredCount} of them) -- phase 3 bakes those to
-// glTF assets. Materials are gray placeholders -- phase 2 resolves the real
-// layered material stack per shared material id.
+// glTF assets. Materials come from phase 2's build-materials.js (real
+// layered-material translation, see that file for per-material notes).
 import * as THREE from 'three';
+import { buildMaterials } from './build-materials.js';
 
 export function buildScene() {
+  const materials = buildMaterials();
+
 ${geometryDeclLines.map((l) => '  ' + l).join('\n')}
 
 ${preludeLines.map((l) => '  ' + l).join('\n')}
@@ -234,4 +250,4 @@ const formatted = await prettier.format(source, { parser: 'babel', singleQuote: 
 
 mkdirSync(join(root, 'src', 'generated'), { recursive: true });
 writeFileSync(join(root, 'src', 'generated', 'build-scene.js'), formatted);
-console.log(`Wrote src/generated/build-scene.js (${deferredCount} deferred meshes, ${geometryVars.size} shared geometries, ${materialVars.size} shared materials)`);
+console.log(`Wrote src/generated/build-scene.js (${deferredCount} deferred meshes, ${geometryVars.size} shared geometries, ${referencedMaterialIds.size} materials referenced)`);
