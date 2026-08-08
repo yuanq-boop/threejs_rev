@@ -8,9 +8,9 @@
 // 2. Translation fidelity: does the recipe's output plausibly correspond to
 //    the source layer values (color channels, roughness, metalness, ...)?
 //    This is reported as a human-readable ledger, not a pass/fail, because
-//    several fields are intentionally approximated (shininess->roughness,
-//    rainbow->iridescence) and are expected to differ from a naive reading
-//    of the source.
+//    some fields are intentionally approximated (shininess->roughness) or
+//    intentionally left untranslated (rainbow, matcap, texture, video) and
+//    are expected to differ from a naive reading of the source.
 //
 // Run after `npm run scene:codegen`. Exits non-zero if check #1 fails
 // (a real bug); check #2's approximated fields are reported, not gated.

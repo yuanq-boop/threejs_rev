@@ -26,8 +26,17 @@ export function translateMaterial(mat) {
 
   const colorLayer = [...layers].reverse().find((l) => l.data.type === 'color');
   const lightLayer = layers.find((l) => l.data.type === 'light');
-  const rainbowLayer = layers.find((l) => l.data.type === 'rainbow' && l.data.alpha > 0);
-  const deferredLayers = layers.filter((l) => ['matcap', 'texture', 'video'].includes(l.data.type));
+  // "rainbow" was previously mapped to MeshPhysicalMaterial's iridescence as
+  // a guess (iridescence = layer alpha). Once actual geometry existed to see
+  // it on, that guess produced a strong, wrong blue/purple sheen on the neck
+  // assembly (Parts material has rainbow alpha=1 -> iridescence=1, Three's
+  // max) where the reference shows plain matte black metal with no visible
+  // color fringing at all. Dropped rather than retuned: unlike
+  // shininess->roughness (a documented, standard approximation formula),
+  // there's no principled mapping from Spline's rainbow layer params to
+  // Three's thin-film iridescence model available here, so a guessed number
+  // is no better than admitting it isn't translated.
+  const deferredLayers = layers.filter((l) => ['matcap', 'texture', 'video', 'rainbow'].includes(l.data.type));
 
   const params = {};
 
@@ -68,20 +77,16 @@ export function translateMaterial(mat) {
     );
   }
 
-  if (rainbowLayer) {
-    const d = rainbowLayer.data;
-    params.iridescence = clamp(d.alpha, 0, 1);
-    params.iridescenceIOR = 1.3;
-    params.iridescenceThicknessRange = [100, Math.round(100 + (d.filmThickness ?? 0) * 20)];
-    notes.push(
-      `"rainbow" layer (filmThickness=${d.filmThickness}) approximated as iridescence=${params.iridescence.toFixed(2)}, iridescenceIOR=1.3 (fixed guess), iridescenceThicknessRange=[100, ${params.iridescenceThicknessRange[1]}] -- not a derived conversion, needs visual retuning`
-    );
-  }
-
   for (const l of deferredLayers) {
-    notes.push(
-      `"${l.data.type}" layer not translated -- needs an image asset (${JSON.stringify(l.data.texture?.image ?? l.data)}), deferred to the asset pipeline`
-    );
+    if (l.data.type === 'rainbow') {
+      notes.push(
+        `"rainbow" layer (alpha=${l.data.alpha}, filmThickness=${l.data.filmThickness}) not translated -- no principled mapping to Three.js's iridescence model available, see comment in translate-material.mjs`
+      );
+    } else {
+      notes.push(
+        `"${l.data.type}" layer not translated -- needs an image asset (${JSON.stringify(l.data.texture?.image ?? l.data)}), deferred to the asset pipeline`
+      );
+    }
   }
 
   const opacity = Math.min(colorLayer?.data.alpha ?? 1, lightLayer?.data.alphaOverride ?? 1);
@@ -90,5 +95,6 @@ export function translateMaterial(mat) {
     params.opacity = opacity;
   }
 
+  const rainbowLayer = deferredLayers.find((l) => l.data.type === 'rainbow');
   return { name: mat.name, params, notes, sourceLayers: { colorLayer, lightLayer, rainbowLayer, deferredLayers } };
 }
