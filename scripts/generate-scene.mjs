@@ -1,8 +1,8 @@
 // Reads generated/scene-description.json (written by extract-scene.mjs) and
 // emits src/generated/build-scene.js: a plain Three.js module that
-// constructs the phase-1 subset of the scene (hierarchy, cameras, lights,
-// primitive Box/Cylinder geometry) with `new THREE.XGeometry(...)` calls --
-// the actual "as if a human wrote it" deliverable, not a data dump.
+// constructs the whole scene -- hierarchy, cameras, lights, primitive
+// Box/Cylinder geometry, procedural Rectangle/Ellipse shapes, and baked
+// organic/logo geometry -- with real THREE.* calls, not a data dump.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -44,6 +44,8 @@ const geometryVars = new Map(); // signature -> { ident, lines }
 function geometrySignature(geom) {
   return JSON.stringify(geom);
 }
+let usesShapeHelpers = false;
+let usesBakedAssets = false;
 
 function emitGeometry(geom) {
   const sig = geometrySignature(geom);
@@ -65,6 +67,16 @@ function emitGeometry(geom) {
     if (geom.cornerRadius || geom.hollow) {
       ctorLine += ` /* cornerRadius=${fmtNum(geom.cornerRadius)}, hollow=${fmtNum(geom.hollow)} not represented, see phase notes */`;
     }
+  } else if (geom.kind === 'rectangle') {
+    ident = uniqueIdent('rectExtrudeGeometry');
+    usesShapeHelpers = true;
+    const shapeExpr = `roundedRectShape(${fmtNum(geom.width)}, ${fmtNum(geom.height)}, ${JSON.stringify(geom.cornerRadius)}, ${geom.cornerType})`;
+    ctorLine = `new THREE.ExtrudeGeometry(${shapeExpr}, { depth: ${fmtNum(geom.depth)}, bevelEnabled: true, bevelSize: ${fmtNum(geom.extrudeBevelSize)}, bevelThickness: ${fmtNum(geom.extrudeBevelSize)}, bevelSegments: ${geom.extrudeBevelSegments} }) /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */`;
+  } else if (geom.kind === 'ellipse') {
+    ident = uniqueIdent('ellipseExtrudeGeometry');
+    usesShapeHelpers = true;
+    const shapeExpr = `ellipseShape(${fmtNum(geom.width)}, ${fmtNum(geom.height)}, ${geom.spikes}, ${fmtNum(geom.innerRadius)}, ${fmtNum(geom.angle)})`;
+    ctorLine = `new THREE.ExtrudeGeometry(${shapeExpr}, { depth: ${fmtNum(geom.depth)}, bevelEnabled: true, bevelSize: ${fmtNum(geom.extrudeBevelSize)}, bevelThickness: ${fmtNum(geom.extrudeBevelSize)}, bevelSegments: ${geom.extrudeBevelSegments} }) /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */`;
   } else {
     return null;
   }
@@ -147,35 +159,51 @@ function walk(node, parentIdent) {
     ident = uniqueIdent(node.name || 'light');
     emitLight(node, ident);
   } else if (node.objectType === 'Mesh') {
-    const geomIdent = emitGeometry(node.geometry);
-    if (!geomIdent) {
-      deferredCount++;
-      // No geometry representation yet (phase 3 territory), but this node
-      // may still have real children (e.g. "Body" carries the arm/hand
-      // groups) -- keep it as a transform-only Group so the hierarchy below
-      // it isn't silently dropped.
-      ident = uniqueIdent(node.name || 'mesh');
+    const matExpr = emitMaterial(node.materialId);
+    const matSrc = matExpr ?? "new THREE.MeshStandardMaterial({ color: 0xff00ff })";
+    if (!matExpr) {
       bodyLines.push(
-        `// TODO(phase 3): "${node.name || '(unnamed)'}" used ${node.geometry.originalType} geometry (${node.geometry.note}); standing in with an empty Group so its children still attach correctly.`
+        `// NOTE: "${node.name || '(unnamed)'}" has no materialId -- shouldn't happen for an authored mesh, falling back to a flat placeholder.`
       );
-      bodyLines.push(`const ${ident} = new THREE.Group();`);
-    } else {
-      const matExpr = emitMaterial(node.materialId);
+    }
+
+    if (node.geometry.kind === 'baked') {
+      // SubdivGeometry (wasm-computed organic body) or VectorGeometry (the
+      // logo text) -- baked to public/models/body.glb by
+      // scripts/extract-scene.mjs (the geometry bake half of it), deduped by geometry.uuid there too, so
+      // mirrored left/right parts reference the same glTF node.
+      usesBakedAssets = true;
       ident = uniqueIdent(node.name || 'mesh');
-      if (!matExpr) {
+      bodyLines.push(`const ${ident} = bakedAssets[${JSON.stringify(node.geometry.geometryUuid)}].clone();`);
+      bodyLines.push(`${ident}.material = ${matSrc};`);
+    } else {
+      const geomIdent = emitGeometry(node.geometry);
+      if (!geomIdent) {
+        deferredCount++;
+        // No geometry representation (shouldn't happen -- box/cylinder/
+        // rectangle/ellipse/baked cover every geometry type this scene
+        // uses -- but keep hierarchy intact if a future scene has something
+        // none of those cover).
+        ident = uniqueIdent(node.name || 'mesh');
         bodyLines.push(
-          `// NOTE: "${node.name || '(unnamed)'}" has no materialId -- shouldn't happen for an authored mesh, falling back to a flat placeholder.`
+          `// TODO: "${node.name || '(unnamed)'}" used ${node.geometry.originalType} geometry (${node.geometry.note}); standing in with an empty Group so its children still attach correctly.`
         );
+        bodyLines.push(`const ${ident} = new THREE.Group();`);
+      } else {
+        ident = uniqueIdent(node.name || 'mesh');
+        bodyLines.push(`const ${ident} = new THREE.Mesh(${geomIdent}, ${matSrc});`);
       }
-      const matSrc = matExpr ?? "new THREE.MeshStandardMaterial({ color: 0xff00ff })";
-      bodyLines.push(`const ${ident} = new THREE.Mesh(${geomIdent}, ${matSrc});`);
     }
   } else {
     // Scene / Group / Object3D -> THREE.Group
     ident = uniqueIdent(node.name || (node.objectType === 'Scene' ? 'scene' : 'group'));
     bodyLines.push(`const ${ident} = new THREE.Group();`);
-    if (node.name) bodyLines.push(`${ident}.name = ${JSON.stringify(node.name)};`);
   }
+
+  // Set on every node type (not just Group/Scene) -- meshes previously came
+  // out unnamed, which made them impossible to find with getObjectByName and
+  // produced misleading results when diffing world positions by name.
+  if (node.name) bodyLines.push(`${ident}.name = ${JSON.stringify(node.name)};`);
 
   if (node.position && node.position.some((v) => v !== 0)) {
     bodyLines.push(fmtVec3Set(`${ident}.position`, node.position));
@@ -217,22 +245,44 @@ for (const child of inner.children ?? []) {
 
 const geometryDeclLines = [...geometryVars.values()].flatMap((g) => g.lines);
 
+const imports = ["import * as THREE from 'three';", "import { buildMaterials } from './build-materials.js';"];
+if (usesShapeHelpers) {
+  imports.push("import { roundedRectShape, ellipseShape } from './shape-helpers.js';");
+}
+if (usesBakedAssets) {
+  imports.push("import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';");
+}
+
 const source = `// GENERATED FILE -- do not hand-edit.
 // Produced by scripts/generate-scene.mjs from generated/scene-description.json
 // (itself produced by scripts/extract-scene.mjs walking the live
 // @splinetool/runtime scene graph for public/scene.splinecode).
 //
-// Phase 1 scope: hierarchy, transforms, cameras, lights, and primitive
-// Box/Cylinder geometry. Meshes using organic/subdivided/vector geometry are
-// left as TODO comments (${deferredCount} of them) -- phase 3 bakes those to
-// glTF assets. Materials come from phase 2's build-materials.js (real
-// layered-material translation, see that file for per-material notes).
-import * as THREE from 'three';
-import { buildMaterials } from './build-materials.js';
+// Hierarchy/transforms/cameras/lights and primitive Box/Cylinder geometry
+// are generated directly. RectangleGeometry/EllipseGeometry (panel/screw/
+// seam details) become THREE.Shape + THREE.ExtrudeGeometry via
+// shape-helpers.js -- see that file for the (unverified) percentage/corner-
+// order assumptions. SubdivGeometry (organic body) and VectorGeometry (the
+// logo text) are baked into public/models/body.glb by
+// scripts/extract-scene.mjs (the geometry bake half of it) and loaded here via GLTFLoader, since there's no
+// clean source-of-truth formula to regenerate wasm-computed subdivision
+// surfaces or bezier-path text from. Materials come from phase 2's
+// build-materials.js.
+${imports.join('\n')}
 
-export function buildScene() {
+export async function buildScene() {
   const materials = buildMaterials();
-
+${
+  usesBakedAssets
+    ? `
+  const bakedGltf = await new GLTFLoader().loadAsync('/models/body.glb');
+  const bakedAssets = {};
+  bakedGltf.scene.traverse((o) => {
+    if (o.isMesh) bakedAssets[o.name] = o;
+  });
+`
+    : ''
+}
 ${geometryDeclLines.map((l) => '  ' + l).join('\n')}
 
 ${preludeLines.map((l) => '  ' + l).join('\n')}

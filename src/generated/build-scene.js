@@ -3,16 +3,29 @@
 // (itself produced by scripts/extract-scene.mjs walking the live
 // @splinetool/runtime scene graph for public/scene.splinecode).
 //
-// Phase 1 scope: hierarchy, transforms, cameras, lights, and primitive
-// Box/Cylinder geometry. Meshes using organic/subdivided/vector geometry are
-// left as TODO comments (68 of them) -- phase 3 bakes those to
-// glTF assets. Materials come from phase 2's build-materials.js (real
-// layered-material translation, see that file for per-material notes).
+// Hierarchy/transforms/cameras/lights and primitive Box/Cylinder geometry
+// are generated directly. RectangleGeometry/EllipseGeometry (panel/screw/
+// seam details) become THREE.Shape + THREE.ExtrudeGeometry via
+// shape-helpers.js -- see that file for the (unverified) percentage/corner-
+// order assumptions. SubdivGeometry (organic body) and VectorGeometry (the
+// logo text) are baked into public/models/body.glb by
+// scripts/extract-scene.mjs (the geometry bake half of it) and loaded here via GLTFLoader, since there's no
+// clean source-of-truth formula to regenerate wasm-computed subdivision
+// surfaces or bezier-path text from. Materials come from phase 2's
+// build-materials.js.
 import * as THREE from 'three';
 import { buildMaterials } from './build-materials.js';
+import { roundedRectShape, ellipseShape } from './shape-helpers.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export function buildScene() {
+export async function buildScene() {
   const materials = buildMaterials();
+
+  const bakedGltf = await new GLTFLoader().loadAsync('/models/body.glb');
+  const bakedAssets = {};
+  bakedGltf.scene.traverse((o) => {
+    if (o.isMesh) bakedAssets[o.name] = o;
+  });
 
   const boxGeometry = new THREE.BoxGeometry(
     5,
@@ -46,75 +59,239 @@ export function buildScene() {
     50,
     50,
     63.42429,
+    8,
+    1,
+    false,
+    0,
+    6.283185,
+  ); /* cornerRadius=8, hollow=0 not represented, see phase notes */
+  const cylinderGeometry_4 = new THREE.CylinderGeometry(
+    50,
+    50,
+    63.42429,
     6,
     1,
     false,
     0,
     6.283185,
   ); /* cornerRadius=8, hollow=0 not represented, see phase notes */
+  const rectExtrudeGeometry = new THREE.ExtrudeGeometry(
+    roundedRectShape(29, 41.938941, [100, 100, 100, 100], 0),
+    { depth: 9, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry = new THREE.ExtrudeGeometry(
+    ellipseShape(29.136834, 29.136834, 16, 0, 360),
+    { depth: 26, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_2 = new THREE.ExtrudeGeometry(ellipseShape(19, 19, 16, 0, 360), {
+    depth: 25,
+    bevelEnabled: true,
+    bevelSize: 1,
+    bevelThickness: 1,
+    bevelSegments: 1,
+  }); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_2 = new THREE.ExtrudeGeometry(
+    roundedRectShape(29, 41.938941, [100, 100, 100, 100], 0),
+    { depth: 9, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_3 = new THREE.ExtrudeGeometry(
+    ellipseShape(29.136834, 29.136834, 16, 0, 360),
+    { depth: 26, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_4 = new THREE.ExtrudeGeometry(
+    ellipseShape(47.927139, 47.927139, 16, 81, 360),
+    { depth: 17.827009, bevelEnabled: true, bevelSize: 2, bevelThickness: 2, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_5 = new THREE.ExtrudeGeometry(
+    ellipseShape(40.489532, 40.489532, 16, 0, 360),
+    { depth: 15.060512, bevelEnabled: true, bevelSize: 2, bevelThickness: 2, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_3 = new THREE.ExtrudeGeometry(
+    roundedRectShape(51.537699, 36.367288, [0, 25, 25, 0], 0),
+    { depth: 10, bevelEnabled: true, bevelSize: 2, bevelThickness: 2, bevelSegments: 1 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_6 = new THREE.ExtrudeGeometry(
+    ellipseShape(17.591709, 17.591709, 12, 0, 360),
+    { depth: 21.420632, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_4 = new THREE.ExtrudeGeometry(
+    roundedRectShape(36.367288, 36.367288, [0, 25, 25, 0], 0),
+    { depth: 10, bevelEnabled: true, bevelSize: 2, bevelThickness: 2, bevelSegments: 1 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_7 = new THREE.ExtrudeGeometry(
+    ellipseShape(17.591709, 17.591709, 12, 0, 360),
+    { depth: 21.420632, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_5 = new THREE.ExtrudeGeometry(
+    roundedRectShape(36.367288, 36.367288, [0, 25, 25, 0], 0),
+    { depth: 10, bevelEnabled: true, bevelSize: 2, bevelThickness: 2, bevelSegments: 1 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const cylinderGeometry_5 = new THREE.CylinderGeometry(
+    50,
+    50,
+    63.42429,
+    8,
+    1,
+    false,
+    0,
+    6.283185,
+  ); /* cornerRadius=8, hollow=0 not represented, see phase notes */
+  const rectExtrudeGeometry_6 = new THREE.ExtrudeGeometry(
+    roundedRectShape(47.414315, 37.526075, [100, 100, 100, 100], 0),
+    { depth: 20.060472, bevelEnabled: true, bevelSize: 9, bevelThickness: 9, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_7 = new THREE.ExtrudeGeometry(
+    roundedRectShape(59.551878, 32.188194, [100, 100, 100, 100], 0),
+    { depth: 16.301922, bevelEnabled: true, bevelSize: 9, bevelThickness: 9, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_8 = new THREE.ExtrudeGeometry(ellipseShape(32, 32, 16, 0, 360), {
+    depth: 109.856402,
+    bevelEnabled: true,
+    bevelSize: 6,
+    bevelThickness: 6,
+    bevelSegments: 3,
+  }); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_9 = new THREE.ExtrudeGeometry(ellipseShape(40, 40, 16, 0, 360), {
+    depth: 28,
+    bevelEnabled: true,
+    bevelSize: 1,
+    bevelThickness: 1,
+    bevelSegments: 1,
+  }); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_8 = new THREE.ExtrudeGeometry(
+    roundedRectShape(59.551878, 32.188194, [100, 100, 100, 100], 0),
+    { depth: 12.674239, bevelEnabled: true, bevelSize: 9, bevelThickness: 9, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_9 = new THREE.ExtrudeGeometry(
+    roundedRectShape(59.551878, 32.188194, [100, 100, 100, 100], 0),
+    { depth: 12.674239, bevelEnabled: true, bevelSize: 9, bevelThickness: 9, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_10 = new THREE.ExtrudeGeometry(
+    ellipseShape(41.795361, 41.795361, 16, 0, 360),
+    { depth: 15.853413, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 1 },
+  ); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_11 = new THREE.ExtrudeGeometry(ellipseShape(35, 35, 16, 0, 360), {
+    depth: 12.814902,
+    bevelEnabled: true,
+    bevelSize: 1,
+    bevelThickness: 1,
+    bevelSegments: 1,
+  }); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_10 = new THREE.ExtrudeGeometry(
+    roundedRectShape(47.414315, 37.526075, [100, 100, 100, 100], 0),
+    { depth: 19.21625, bevelEnabled: true, bevelSize: 9, bevelThickness: 9, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_11 = new THREE.ExtrudeGeometry(
+    roundedRectShape(40.898026, 22.87133, [0, 80, 80, 0], 0),
+    { depth: 16, bevelEnabled: true, bevelSize: 4, bevelThickness: 4, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_12 = new THREE.ExtrudeGeometry(
+    roundedRectShape(40.898026, 31.296882, [0, 80, 80, 0], 0),
+    { depth: 16, bevelEnabled: true, bevelSize: 4, bevelThickness: 4, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_12 = new THREE.ExtrudeGeometry(ellipseShape(36, 36, 16, 0, 360), {
+    depth: 14.629749,
+    bevelEnabled: true,
+    bevelSize: 4,
+    bevelThickness: 4,
+    bevelSegments: 1,
+  }); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_13 = new THREE.ExtrudeGeometry(
+    roundedRectShape(40.898026, 31.296882, [0, 80, 80, 0], 0),
+    { depth: 16, bevelEnabled: true, bevelSize: 4, bevelThickness: 4, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const ellipseExtrudeGeometry_13 = new THREE.ExtrudeGeometry(ellipseShape(36, 36, 16, 0, 360), {
+    depth: 14.629749,
+    bevelEnabled: true,
+    bevelSize: 4,
+    bevelThickness: 4,
+    bevelSegments: 1,
+  }); /* approximated: innerRadius% convention inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_14 = new THREE.ExtrudeGeometry(
+    roundedRectShape(138.009357, 45.986932, [91, 91, 91, 91], 0),
+    { depth: 13.092062, bevelEnabled: true, bevelSize: 8, bevelThickness: 8, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_15 = new THREE.ExtrudeGeometry(
+    roundedRectShape(35.006892, 40, [100, 100, 100, 100], 0),
+    { depth: 51.417841, bevelEnabled: true, bevelSize: 1, bevelThickness: 1, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
+  const rectExtrudeGeometry_16 = new THREE.ExtrudeGeometry(
+    roundedRectShape(35.006892, 35.911912, [100, 100, 100, 100], 1),
+    { depth: 72.290401, bevelEnabled: true, bevelSize: 10, bevelThickness: 10, bevelSegments: 2 },
+  ); /* approximated: cornerRadius% and corner-index order are inferred, not verified, see shape-helpers.js */
 
   const root = new THREE.Group();
   root.name = 'Scene 1';
 
   const Camera_2 = new THREE.PerspectiveCamera(45, 1, 70, 100000); // aspect set by caller based on viewport
-  Camera_2.position.set(0, 248.98, 360);
-  Camera_2.rotation.set(0.014486, 0, 0);
+  Camera_2.name = 'Camera 2';
+  Camera_2.position.set(0, 248.514476, 362.920933);
+  Camera_2.rotation.set(0.014452, 0, 0);
   root.add(Camera_2);
 
   const Point_Light = new THREE.PointLight(0xffffff, 5000000); // intensity includes an empirical distance-falloff calibration factor, see DISTANCE_FALLOFF_LIGHT_CALIBRATION in generate-scene.mjs
+  Point_Light.name = 'Point Light';
   Point_Light.position.set(-595, 579, -393);
   root.add(Point_Light);
 
   const logo = new THREE.Group();
   logo.name = 'logo';
   logo.position.set(0, 146, -1000);
+  logo.rotation.set(0, 0, 0);
   logo.scale.set(0.3, 0.3, 0.3);
   root.add(logo);
 
-  // TODO(phase 3): "Shape 0" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_0 = new THREE.Group();
+  const Shape_0 = bakedAssets['afc719bb-92f9-439e-b5cb-339e6d728836'].clone();
+  Shape_0.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_0.name = 'Shape 0';
   Shape_0.position.set(-1919, 250, -0.03);
   Shape_0.castShadow = true;
   Shape_0.receiveShadow = true;
   logo.add(Shape_0);
 
-  // TODO(phase 3): "Shape 1" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_1 = new THREE.Group();
+  const Shape_1 = bakedAssets['61893988-5bc1-4a0f-87c3-fe043ba4f356'].clone();
+  Shape_1.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_1.name = 'Shape 1';
   Shape_1.position.set(696, 250, -0.02);
   Shape_1.castShadow = true;
   Shape_1.receiveShadow = true;
   logo.add(Shape_1);
 
-  // TODO(phase 3): "Shape 2" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_2 = new THREE.Group();
+  const Shape_2 = bakedAssets['a5fb953e-e83a-4db8-9704-49aa40d51cb2'].clone();
+  Shape_2.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_2.name = 'Shape 2';
   Shape_2.position.set(1319, 250, -0.01);
   Shape_2.castShadow = true;
   Shape_2.receiveShadow = true;
   logo.add(Shape_2);
 
-  // TODO(phase 3): "Shape 3" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_3 = new THREE.Group();
+  const Shape_3 = bakedAssets['0a9e949f-ecc9-432c-816d-02726ac0d76b'].clone();
+  Shape_3.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_3.name = 'Shape 3';
   Shape_3.position.set(-1165, 250, 0);
   Shape_3.castShadow = true;
   Shape_3.receiveShadow = true;
   logo.add(Shape_3);
 
-  // TODO(phase 3): "Shape 4" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_4 = new THREE.Group();
+  const Shape_4 = bakedAssets['6a9b7fe9-7817-44a6-b82c-3913f09bbd4d'].clone();
+  Shape_4.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_4.name = 'Shape 4';
   Shape_4.position.set(-1265, 50, 0.01);
   Shape_4.castShadow = true;
   Shape_4.receiveShadow = true;
   logo.add(Shape_4);
 
-  // TODO(phase 3): "Shape 5" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_5 = new THREE.Group();
+  const Shape_5 = bakedAssets['168980af-b4a0-4e1f-995c-59dd4b377d67'].clone();
+  Shape_5.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_5.name = 'Shape 5';
   Shape_5.position.set(42, 250, 0.02);
   Shape_5.castShadow = true;
   Shape_5.receiveShadow = true;
   logo.add(Shape_5);
 
-  // TODO(phase 3): "Shape 6" used VectorGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Shape_6 = new THREE.Group();
+  const Shape_6 = bakedAssets['e029aa1f-11f7-4c5b-95c4-f86eba707268'].clone();
+  Shape_6.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
+  Shape_6.name = 'Shape 6';
   Shape_6.position.set(-612, 250, 0.03);
   Shape_6.castShadow = true;
   Shape_6.receiveShadow = true;
@@ -133,22 +310,24 @@ export function buildScene() {
 
   const Head = new THREE.Group();
   Head.name = 'Head';
-  Head.position.set(0.939879, 100.623363, 2.670301);
+  Head.position.set(0.184025, 183.553801, 18.621848);
   Top_part.add(Head);
 
-  // TODO(phase 3): "Head 2" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Head_2 = new THREE.Group();
-  Head_2.position.set(0, -10.959373, 4.00351);
+  const Head_2 = bakedAssets['1b3def9f-7d4e-4650-a52f-485d85ac2f4e'].clone();
+  Head_2.material = materials['ed42926e-48d3-4907-8975-3cec662ff058'];
+  Head_2.name = 'Head 2';
+  Head_2.position.set(0, 42.940033, 4.00351);
   Head_2.castShadow = true;
   Head_2.receiveShadow = true;
   Head.add(Head_2);
 
   const Neck = new THREE.Group();
   Neck.name = 'Neck';
-  Neck.position.set(0.939879, 106.841243, -10.699503);
+  Neck.position.set(0.184025, 189.771681, 5.252044);
   Top_part.add(Neck);
 
   const Cube = new THREE.Mesh(boxGeometry, materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b']);
+  Cube.name = 'Cube';
   Cube.position.set(0, -13.239626, -0.347205);
   Cube.rotation.set(0.122173, 0, 0);
   Cube.scale.set(1.25, 1.25, 1.25);
@@ -160,6 +339,7 @@ export function buildScene() {
     cylinderGeometry,
     materials['342265b2-6982-4c49-b670-fee0149640a3'],
   );
+  Cylinder_3.name = 'Cylinder 3';
   Cylinder_3.position.set(0, -34.319604, -3.149482);
   Cylinder_3.rotation.set(0.20565, 0, 0);
   Cylinder_3.scale.set(1, 1, 1);
@@ -183,6 +363,7 @@ export function buildScene() {
     cylinderGeometry_2,
     materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
   );
+  Cylinder_4.name = 'Cylinder 4';
   Cylinder_4.position.set(0, 0, 0);
   Cylinder_4.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4.scale.set(1, 1, 1);
@@ -196,9 +377,10 @@ export function buildScene() {
   Group_3.add(Group);
 
   const Cylinder_4_2 = new THREE.Mesh(
-    cylinderGeometry_2,
+    cylinderGeometry_3,
     materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
   );
+  Cylinder_4_2.name = 'Cylinder 4';
   Cylinder_4_2.position.set(0, 0, 0);
   Cylinder_4_2.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4_2.scale.set(1, 1, 1);
@@ -207,9 +389,10 @@ export function buildScene() {
   Group.add(Cylinder_4_2);
 
   const Cylinder = new THREE.Mesh(
-    cylinderGeometry_3,
+    cylinderGeometry_4,
     materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
   );
+  Cylinder.name = 'Cylinder';
   Cylinder.position.set(0, 12.026392, 4.411749);
   Cylinder.rotation.set(0.130289, 0, 0);
   Cylinder.scale.set(1, 1, 1);
@@ -324,18 +507,23 @@ export function buildScene() {
 
   const elbow = new THREE.Group();
   elbow.name = 'elbow';
-  elbow.position.set(12.891958, 30.327545, -1.570261);
+  elbow.position.set(20.541998, -85.632304, 2.657058);
   elbow.rotation.set(0, -0.142001, 0);
   elbow.scale.set(1, 1, 1);
   arm.add(elbow);
 
   const Group_4 = new THREE.Group();
   Group_4.name = 'Group';
-  Group_4.position.set(4.044188, 50.555755, -23.81106);
+  Group_4.position.set(-0.745778, -0.015518, -0.393904);
+  Group_4.rotation.set(0.323899, 0, 0);
+  Group_4.scale.set(1, 1, 1);
   elbow.add(Group_4);
 
-  // TODO(phase 3): "Rectangle 3" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_3 = new THREE.Group();
+  const Rectangle_3 = new THREE.Mesh(
+    rectExtrudeGeometry,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_3.name = 'Rectangle 3';
   Rectangle_3.position.set(1.628032, -2.934109, 1.692717);
   Rectangle_3.rotation.set(-0.74906, 1.540222, 0.404439);
   Rectangle_3.scale.set(1, 1, 1);
@@ -343,8 +531,11 @@ export function buildScene() {
   Rectangle_3.receiveShadow = true;
   Group_4.add(Rectangle_3);
 
-  // TODO(phase 3): "Ellipse 3" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_3 = new THREE.Group();
+  const Ellipse_3 = new THREE.Mesh(
+    ellipseExtrudeGeometry,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_3.name = 'Ellipse 3';
   Ellipse_3.position.set(0.019285, 22.10977, -8.153224);
   Ellipse_3.rotation.set(1.209142, -0.001483, 0.06355);
   Ellipse_3.scale.set(1, 1, 1);
@@ -354,83 +545,107 @@ export function buildScene() {
 
   const forearm = new THREE.Group();
   forearm.name = 'forearm';
-  forearm.position.set(0, 39.504866, -18.250825);
+  forearm.position.set(-4.789966, -12.261409, 1.360096);
+  forearm.rotation.set(0.323899, 0, 0);
+  forearm.scale.set(1, 1, 1);
   elbow.add(forearm);
 
-  // TODO(phase 3): "Hand" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Hand = new THREE.Group();
+  const Hand = bakedAssets['b7cce1e8-4fb2-4b48-9407-2b6ad166bb4a'].clone();
+  Hand.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
+  Hand.name = 'Hand';
   Hand.position.set(-9.434524, -91.204258, 36.550164);
-  Hand.rotation.set(0.604276, 0.938657, 2.475429);
+  Hand.rotation.set(0.280377, 0.938657, 2.475429);
   Hand.scale.set(-1.4, 1.4, 1.4);
   Hand.castShadow = true;
   Hand.receiveShadow = true;
   forearm.add(Hand);
 
-  // TODO(phase 3): "Ellipse 5" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_5 = new THREE.Group();
-  Ellipse_5.position.set(-7.607973, 49.656784, -19.144817);
+  const Ellipse_5 = new THREE.Mesh(
+    ellipseExtrudeGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_5.name = 'Ellipse 5';
+  Ellipse_5.position.set(-7.607973, -0.806285, -0.893992);
   Ellipse_5.rotation.set(-0.750492, 1.53589, 0.401426);
   Ellipse_5.scale.set(1, 1, 1);
   Ellipse_5.castShadow = true;
   Ellipse_5.receiveShadow = true;
   forearm.add(Ellipse_5);
 
-  // TODO(phase 3): "Rectangle 4" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_4 = new THREE.Group();
-  Rectangle_4.position.set(-4.097562, 42.344313, -16.585599);
+  const Rectangle_4 = new THREE.Mesh(
+    rectExtrudeGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_4.name = 'Rectangle 4';
+  Rectangle_4.position.set(-4.097562, -8.118756, 1.665227);
   Rectangle_4.rotation.set(-0.74906, 1.540222, 0.404439);
   Rectangle_4.scale.set(1, 1, 1);
   Rectangle_4.castShadow = true;
   Rectangle_4.receiveShadow = true;
   forearm.add(Rectangle_4);
 
-  // TODO(phase 3): "Ellipse 4" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_4 = new THREE.Group();
-  Ellipse_4.position.set(3.988018, 36.04969, -13.967361);
+  const Ellipse_4 = new THREE.Mesh(
+    ellipseExtrudeGeometry_3,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_4.name = 'Ellipse 4';
+  Ellipse_4.position.set(3.988018, -14.413379, 4.283465);
   Ellipse_4.rotation.set(1.209142, -0.001483, 0.06355);
   Ellipse_4.scale.set(1, 1, 1);
   Ellipse_4.castShadow = true;
   Ellipse_4.receiveShadow = true;
   forearm.add(Ellipse_4);
 
-  // TODO(phase 3): "Cube 3" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_3 = new THREE.Group();
-  Cube_3.position.set(-0.414623, -12.090099, 5.105871);
-  Cube_3.rotation.set(1.391073, 1.059082, -1.853814);
+  const Cube_3 = bakedAssets['51473a18-daaa-45cd-a4c4-7ee7864afa69'].clone();
+  Cube_3.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_3.name = 'Cube 3';
+  Cube_3.position.set(-0.423061, -62.578567, 23.356696);
+  Cube_3.rotation.set(0.998206, 1.408529, -1.444335);
   Cube_3.scale.set(1, 1, 1);
   Cube_3.castShadow = true;
   Cube_3.receiveShadow = true;
   forearm.add(Cube_3);
 
-  // TODO(phase 3): "Cube 2" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_2 = new THREE.Group();
-  Cube_2.position.set(15.694539, 89.76987, -8.998776);
+  const Cube_2 = bakedAssets['a814f8d6-9d1b-4029-aad2-2d8ac5d50441'].clone();
+  Cube_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_2.name = 'Cube 2';
+  Cube_2.position.set(23.34458, -26.18998, -4.771457);
+  Cube_2.rotation.set(0, 0, 0.368074);
   Cube_2.scale.set(1, 1, 1);
   Cube_2.castShadow = true;
   Cube_2.receiveShadow = true;
   arm.add(Cube_2);
 
-  // TODO(phase 3): "Ellipse 6" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_6 = new THREE.Group();
-  Ellipse_6.position.set(-22.508876, 74.889547, -26.100148);
+  const Ellipse_6 = new THREE.Mesh(
+    ellipseExtrudeGeometry_4,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_6.name = 'Ellipse 6';
+  Ellipse_6.position.set(15.042097, 1.437313, -2.583165);
   Ellipse_6.rotation.set(-1.570796, 1.466077, -1.570796);
   Ellipse_6.scale.set(1, 1, 1);
   Ellipse_6.castShadow = true;
   Ellipse_6.receiveShadow = true;
   Hand_LEFT.add(Ellipse_6);
 
-  // TODO(phase 3): "Ellipse 2" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_2 = new THREE.Group();
-  Ellipse_2.position.set(-24.163375, 74.715652, -26.100148);
+  const Ellipse_2 = new THREE.Mesh(
+    ellipseExtrudeGeometry_5,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_2.name = 'Ellipse 2';
+  Ellipse_2.position.set(13.387598, 1.263418, -2.583165);
   Ellipse_2.rotation.set(-1.570796, 1.466077, -1.570796);
   Ellipse_2.scale.set(1, 1, 1);
   Ellipse_2.castShadow = true;
   Ellipse_2.receiveShadow = true;
   Hand_LEFT.add(Ellipse_2);
 
-  // TODO(phase 3): "Rectangle 2" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_2 = new THREE.Group();
-  Rectangle_2.position.set(-34.278959, 73.065293, -30.770688);
+  const Rectangle_2 = new THREE.Mesh(
+    rectExtrudeGeometry_3,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_2.name = 'Rectangle 2';
+  Rectangle_2.position.set(3.272014, -0.386941, -7.253705);
   Rectangle_2.rotation.set(0, 0, -3.029018);
   Rectangle_2.scale.set(1, 1, 1);
   Rectangle_2.castShadow = true;
@@ -456,18 +671,23 @@ export function buildScene() {
 
   const elbow_2 = new THREE.Group();
   elbow_2.name = 'elbow';
-  elbow_2.position.set(12.891958, 30.327545, -1.570261);
+  elbow_2.position.set(20.541998, -85.632304, 2.657058);
   elbow_2.rotation.set(0, -0.142001, 0);
   elbow_2.scale.set(1, 1, 1);
   arm_2.add(elbow_2);
 
   const Group_5 = new THREE.Group();
   Group_5.name = 'Group';
-  Group_5.position.set(4.044188, 50.555755, -23.81106);
+  Group_5.position.set(-0.745778, -0.015518, -0.393904);
+  Group_5.rotation.set(0.323899, 0, 0);
+  Group_5.scale.set(1, 1, 1);
   elbow_2.add(Group_5);
 
-  // TODO(phase 3): "Rectangle 3" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_3_2 = new THREE.Group();
+  const Rectangle_3_2 = new THREE.Mesh(
+    rectExtrudeGeometry,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_3_2.name = 'Rectangle 3';
   Rectangle_3_2.position.set(1.628032, -2.934109, 1.692717);
   Rectangle_3_2.rotation.set(-0.74906, 1.540222, 0.404439);
   Rectangle_3_2.scale.set(1, 1, 1);
@@ -475,8 +695,11 @@ export function buildScene() {
   Rectangle_3_2.receiveShadow = true;
   Group_5.add(Rectangle_3_2);
 
-  // TODO(phase 3): "Ellipse 3" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_3_2 = new THREE.Group();
+  const Ellipse_3_2 = new THREE.Mesh(
+    ellipseExtrudeGeometry,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_3_2.name = 'Ellipse 3';
   Ellipse_3_2.position.set(0.019285, 22.10977, -8.153224);
   Ellipse_3_2.rotation.set(1.209142, -0.001483, 0.06355);
   Ellipse_3_2.scale.set(1, 1, 1);
@@ -486,92 +709,117 @@ export function buildScene() {
 
   const forearm_2 = new THREE.Group();
   forearm_2.name = 'forearm';
-  forearm_2.position.set(0, 39.504866, -18.250825);
+  forearm_2.position.set(-4.789966, -12.261409, 1.360096);
+  forearm_2.rotation.set(0.323899, 0, 0);
+  forearm_2.scale.set(1, 1, 1);
   elbow_2.add(forearm_2);
 
-  // TODO(phase 3): "Hand" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Hand_3 = new THREE.Group();
+  const Hand_3 = bakedAssets['b7cce1e8-4fb2-4b48-9407-2b6ad166bb4a'].clone();
+  Hand_3.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
+  Hand_3.name = 'Hand';
   Hand_3.position.set(-9.434524, -91.204258, 36.550164);
-  Hand_3.rotation.set(0.604276, 0.938657, 2.475429);
+  Hand_3.rotation.set(0.280377, 0.938657, 2.475429);
   Hand_3.scale.set(-1.4, 1.4, 1.4);
   Hand_3.castShadow = true;
   Hand_3.receiveShadow = true;
   forearm_2.add(Hand_3);
 
-  // TODO(phase 3): "Ellipse 5" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_5_2 = new THREE.Group();
-  Ellipse_5_2.position.set(-7.607973, 49.656784, -19.144817);
+  const Ellipse_5_2 = new THREE.Mesh(
+    ellipseExtrudeGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_5_2.name = 'Ellipse 5';
+  Ellipse_5_2.position.set(-7.607973, -0.806285, -0.893992);
   Ellipse_5_2.rotation.set(-0.750492, 1.53589, 0.401426);
   Ellipse_5_2.scale.set(1, 1, 1);
   Ellipse_5_2.castShadow = true;
   Ellipse_5_2.receiveShadow = true;
   forearm_2.add(Ellipse_5_2);
 
-  // TODO(phase 3): "Rectangle 4" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_4_2 = new THREE.Group();
-  Rectangle_4_2.position.set(-4.097562, 42.344313, -16.585599);
+  const Rectangle_4_2 = new THREE.Mesh(
+    rectExtrudeGeometry_2,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_4_2.name = 'Rectangle 4';
+  Rectangle_4_2.position.set(-4.097562, -8.118756, 1.665227);
   Rectangle_4_2.rotation.set(-0.74906, 1.540222, 0.404439);
   Rectangle_4_2.scale.set(1, 1, 1);
   Rectangle_4_2.castShadow = true;
   Rectangle_4_2.receiveShadow = true;
   forearm_2.add(Rectangle_4_2);
 
-  // TODO(phase 3): "Ellipse 4" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_4_2 = new THREE.Group();
-  Ellipse_4_2.position.set(3.988018, 36.04969, -13.967361);
+  const Ellipse_4_2 = new THREE.Mesh(
+    ellipseExtrudeGeometry_3,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_4_2.name = 'Ellipse 4';
+  Ellipse_4_2.position.set(3.988018, -14.413379, 4.283465);
   Ellipse_4_2.rotation.set(1.209142, -0.001483, 0.06355);
   Ellipse_4_2.scale.set(1, 1, 1);
   Ellipse_4_2.castShadow = true;
   Ellipse_4_2.receiveShadow = true;
   forearm_2.add(Ellipse_4_2);
 
-  // TODO(phase 3): "Cube 3" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_3_2 = new THREE.Group();
-  Cube_3_2.position.set(-0.414623, -12.090099, 5.105871);
-  Cube_3_2.rotation.set(1.391073, 1.059082, -1.853814);
+  const Cube_3_2 = bakedAssets['51473a18-daaa-45cd-a4c4-7ee7864afa69'].clone();
+  Cube_3_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_3_2.name = 'Cube 3';
+  Cube_3_2.position.set(-0.423061, -62.578567, 23.356696);
+  Cube_3_2.rotation.set(0.998206, 1.408529, -1.444335);
   Cube_3_2.scale.set(1, 1, 1);
   Cube_3_2.castShadow = true;
   Cube_3_2.receiveShadow = true;
   forearm_2.add(Cube_3_2);
 
-  // TODO(phase 3): "Cube 2" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_2_2 = new THREE.Group();
-  Cube_2_2.position.set(15.694539, 89.76987, -8.998776);
+  const Cube_2_2 = bakedAssets['a814f8d6-9d1b-4029-aad2-2d8ac5d50441'].clone();
+  Cube_2_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_2_2.name = 'Cube 2';
+  Cube_2_2.position.set(23.34458, -26.18998, -4.771457);
+  Cube_2_2.rotation.set(0, 0, 0.368074);
   Cube_2_2.scale.set(1, 1, 1);
   Cube_2_2.castShadow = true;
   Cube_2_2.receiveShadow = true;
   arm_2.add(Cube_2_2);
 
-  // TODO(phase 3): "Ellipse 6" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_6_2 = new THREE.Group();
-  Ellipse_6_2.position.set(-22.508876, 74.889547, -26.100148);
+  const Ellipse_6_2 = new THREE.Mesh(
+    ellipseExtrudeGeometry_4,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_6_2.name = 'Ellipse 6';
+  Ellipse_6_2.position.set(15.042097, 1.437313, -2.583165);
   Ellipse_6_2.rotation.set(-1.570796, 1.466077, -1.570796);
   Ellipse_6_2.scale.set(1, 1, 1);
   Ellipse_6_2.castShadow = true;
   Ellipse_6_2.receiveShadow = true;
   Hand_LEFT_2.add(Ellipse_6_2);
 
-  // TODO(phase 3): "Ellipse 2" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_2_2 = new THREE.Group();
-  Ellipse_2_2.position.set(-24.163375, 74.715652, -26.100148);
+  const Ellipse_2_2 = new THREE.Mesh(
+    ellipseExtrudeGeometry_5,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_2_2.name = 'Ellipse 2';
+  Ellipse_2_2.position.set(13.387598, 1.263418, -2.583165);
   Ellipse_2_2.rotation.set(-1.570796, 1.466077, -1.570796);
   Ellipse_2_2.scale.set(1, 1, 1);
   Ellipse_2_2.castShadow = true;
   Ellipse_2_2.receiveShadow = true;
   Hand_LEFT_2.add(Ellipse_2_2);
 
-  // TODO(phase 3): "Rectangle 2" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_2_2 = new THREE.Group();
-  Rectangle_2_2.position.set(-34.278959, 73.065293, -30.770688);
+  const Rectangle_2_2 = new THREE.Mesh(
+    rectExtrudeGeometry_3,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_2_2.name = 'Rectangle 2';
+  Rectangle_2_2.position.set(3.272014, -0.386941, -7.253705);
   Rectangle_2_2.rotation.set(0, 0, -3.029018);
   Rectangle_2_2.scale.set(1, 1, 1);
   Rectangle_2_2.castShadow = true;
   Rectangle_2_2.receiveShadow = true;
   Hand_LEFT_2.add(Rectangle_2_2);
 
-  // TODO(phase 3): "Body" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Body = new THREE.Group();
-  Body.position.set(0.939879, -194.789024, -5.25042);
+  const Body = bakedAssets['e57e3421-bdf1-4855-aa58-6441feccdd6b'].clone();
+  Body.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Body.name = 'Body';
+  Body.position.set(0.184025, -111.858585, 10.701127);
   Body.castShadow = true;
   Body.receiveShadow = true;
   Top_part.add(Body);
@@ -579,11 +827,15 @@ export function buildScene() {
   const Group_6 = new THREE.Group();
   Group_6.name = 'Group';
   Group_6.position.set(-67.839654, 234.756813, -10.055411);
+  Group_6.rotation.set(0, 0, -0.093819);
   Group_6.scale.set(-1, 1, 1);
   Body.add(Group_6);
 
-  // TODO(phase 3): "Ellipse" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse = new THREE.Group();
+  const Ellipse = new THREE.Mesh(
+    ellipseExtrudeGeometry_6,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse.name = 'Ellipse';
   Ellipse.position.set(3.583121, 0.584768, -10.710316);
   Ellipse.rotation.set(0, 0, 0.10472);
   Ellipse.scale.set(1, 1, 1);
@@ -591,8 +843,11 @@ export function buildScene() {
   Ellipse.receiveShadow = true;
   Group_6.add(Ellipse);
 
-  // TODO(phase 3): "Rectangle" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle = new THREE.Group();
+  const Rectangle = new THREE.Mesh(
+    rectExtrudeGeometry_4,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle.name = 'Rectangle';
   Rectangle.position.set(0, 0, -0.740552);
   Rectangle.rotation.set(0, 0, 0.112574);
   Rectangle.scale.set(1, 1, 1);
@@ -603,19 +858,27 @@ export function buildScene() {
   const Group_7 = new THREE.Group();
   Group_7.name = 'Group';
   Group_7.position.set(67.822813, 234.78921, -10.055411);
+  Group_7.rotation.set(0, 0, 0.085987);
   Group_7.scale.set(1, 1, 1);
   Body.add(Group_7);
 
-  // TODO(phase 3): "Ellipse" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_7 = new THREE.Group();
+  const Ellipse_7 = new THREE.Mesh(
+    ellipseExtrudeGeometry_7,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_7.name = 'Ellipse';
   Ellipse_7.position.set(3.583121, 0.584768, -10.710316);
   Ellipse_7.rotation.set(0, 0, 0.10472);
+  Ellipse_7.scale.set(1, 1, 1);
   Ellipse_7.castShadow = true;
   Ellipse_7.receiveShadow = true;
   Group_7.add(Ellipse_7);
 
-  // TODO(phase 3): "Rectangle" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_5 = new THREE.Group();
+  const Rectangle_5 = new THREE.Mesh(
+    rectExtrudeGeometry_5,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_5.name = 'Rectangle';
   Rectangle_5.position.set(0, 0, -0.740552);
   Rectangle_5.rotation.set(0, 0, 0.112574);
   Rectangle_5.castShadow = true;
@@ -639,9 +902,10 @@ export function buildScene() {
   Group_4_2.add(Group_2_2);
 
   const Cylinder_4_3 = new THREE.Mesh(
-    cylinderGeometry_2,
+    cylinderGeometry_5,
     materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
   );
+  Cylinder_4_3.name = 'Cylinder 4';
   Cylinder_4_3.position.set(0, 0, 0);
   Cylinder_4_3.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4_3.scale.set(1, 1, 1);
@@ -655,9 +919,10 @@ export function buildScene() {
   Group_4_2.add(Group_8);
 
   const Cylinder_4_4 = new THREE.Mesh(
-    cylinderGeometry_2,
+    cylinderGeometry_5,
     materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
   );
+  Cylinder_4_4.name = 'Cylinder 4';
   Cylinder_4_4.position.set(0, 0, 0);
   Cylinder_4_4.rotation.set(0.130289, 0, -0.278824);
   Cylinder_4_4.scale.set(1, 1, 1);
@@ -667,7 +932,7 @@ export function buildScene() {
 
   const Leg_Left_Instance = new THREE.Group();
   Leg_Left_Instance.name = 'Leg Left Instance';
-  Leg_Left_Instance.position.set(-49.1, 152.350021, 6.963627);
+  Leg_Left_Instance.position.set(-49.1, 2.780147, 23.601931);
   Leg_Left_Instance.rotation.set(0.127625, -0.331202, 0);
   Leg_Left_Instance.scale.set(-1, 1, 1);
   Bottom.add(Leg_Left_Instance);
@@ -677,27 +942,34 @@ export function buildScene() {
   femur.position.set(2.574232, -66.66871, 0.633899);
   Leg_Left_Instance.add(femur);
 
-  // TODO(phase 3): "Cube 3" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_3_3 = new THREE.Group();
-  Cube_3_3.position.set(-0.695858, -1.555922, -1.795629);
+  const Cube_3_3 = bakedAssets['0af65925-4bc2-4280-ad85-d572d51a5599'].clone();
+  Cube_3_3.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_3_3.name = 'Cube 3';
+  Cube_3_3.position.set(-0.695858, -51.541058, -1.795629);
   Cube_3_3.rotation.set(1.570796, 0, -3.141593);
   Cube_3_3.scale.set(1, 1, 1);
   Cube_3_3.castShadow = true;
   Cube_3_3.receiveShadow = true;
   femur.add(Cube_3_3);
 
-  // TODO(phase 3): "Rectangle 9" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_9 = new THREE.Group();
-  Rectangle_9.position.set(-2.543438, 47.854355, -2.255406);
+  const Rectangle_9 = new THREE.Mesh(
+    rectExtrudeGeometry_6,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_9.name = 'Rectangle 9';
+  Rectangle_9.position.set(-2.543438, -2.130781, -2.255406);
   Rectangle_9.rotation.set(-1.570796, 1.570796, 0);
   Rectangle_9.scale.set(1, 1.00292, 1);
   Rectangle_9.castShadow = true;
   Rectangle_9.receiveShadow = true;
   femur.add(Rectangle_9);
 
-  // TODO(phase 3): "Rectangle 10" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_10 = new THREE.Group();
-  Rectangle_10.position.set(-9.695649, -42.919856, -2.255406);
+  const Rectangle_10 = new THREE.Mesh(
+    rectExtrudeGeometry_7,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_10.name = 'Rectangle 10';
+  Rectangle_10.position.set(-9.695649, -92.904992, -2.255406);
   Rectangle_10.rotation.set(-1.570796, 1.570796, 0);
   Rectangle_10.scale.set(1, 1.00292, 1);
   Rectangle_10.castShadow = true;
@@ -706,9 +978,8 @@ export function buildScene() {
 
   const shin = new THREE.Group();
   shin.name = 'shin';
-  shin.position.set(-2.574232, -64.526822, -2.908291);
+  shin.position.set(-2.574232, -114.511958, -2.908291);
   shin.rotation.set(-0.141838, 0, 0);
-  shin.scale.set(1, 1, 1);
   femur.add(shin);
 
   const Foot = new THREE.Group();
@@ -716,88 +987,114 @@ export function buildScene() {
   Foot.position.set(0, -160.389901, -18.689457);
   shin.add(Foot);
 
-  // TODO(phase 3): "Cube 5" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_5 = new THREE.Group();
-  Cube_5.position.set(1.3138, -9.356308, -9.384017);
-  Cube_5.rotation.set(0, -0.140367, 0);
+  const Cube_5 = bakedAssets['3bcae6d8-b8ea-4433-8835-884fb5cf60a0'].clone();
+  Cube_5.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
+  Cube_5.name = 'Cube 5';
+  Cube_5.position.set(1.3138, -9.356308, 18.236206);
+  Cube_5.rotation.set(0.009128, -0.140367, 0);
   Cube_5.scale.set(1, 1, 1);
   Cube_5.castShadow = true;
   Cube_5.receiveShadow = true;
   Foot.add(Cube_5);
 
-  // TODO(phase 3): "Ellipse 5" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_5_3 = new THREE.Group();
-  Ellipse_5_3.position.set(2.805771, 24.449085, -26.838991);
-  Ellipse_5_3.rotation.set(1.438991, 0, 3.141593);
+  const Ellipse_5_3 = new THREE.Mesh(
+    ellipseExtrudeGeometry_8,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_5_3.name = 'Ellipse 5';
+  Ellipse_5_3.position.set(2.805771, -61.162566, -29.886513);
+  Ellipse_5_3.rotation.set(1.448119, 0, 3.141593);
   Ellipse_5_3.scale.set(1, 1, 1);
   Ellipse_5_3.castShadow = true;
   Ellipse_5_3.receiveShadow = true;
   shin.add(Ellipse_5_3);
 
-  // TODO(phase 3): "Cube 4" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_4 = new THREE.Group();
-  Cube_4.position.set(1.26208, 9.302013, 3.463357);
-  Cube_4.rotation.set(1.570796, 0, -3.141593);
+  const Cube_4 = bakedAssets['557fa3b3-244a-4b5f-b902-3791f6286bb5'].clone();
+  Cube_4.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_4.name = 'Cube 4';
+  Cube_4.position.set(1.26208, -76.585611, 0.276309);
+  Cube_4.rotation.set(1.579925, 0, -3.141593);
   Cube_4.scale.set(1, 1, 1);
   Cube_4.castShadow = true;
   Cube_4.receiveShadow = true;
   shin.add(Cube_4);
 
-  // TODO(phase 3): "Ellipse 4" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_4_3 = new THREE.Group();
-  Ellipse_4_3.position.set(1.3138, 73.224369, 3.463357);
-  Ellipse_4_3.rotation.set(1.570796, 0, -3.141593);
+  const Ellipse_4_3 = new THREE.Mesh(
+    ellipseExtrudeGeometry_9,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_4_3.name = 'Ellipse 4';
+  Ellipse_4_3.position.set(1.3138, -12.665917, 0.8598);
+  Ellipse_4_3.rotation.set(1.579925, 0, -3.141593);
   Ellipse_4_3.scale.set(1, 1, 1);
   Ellipse_4_3.castShadow = true;
   Ellipse_4_3.receiveShadow = true;
   shin.add(Ellipse_4_3);
 
-  // TODO(phase 3): "Rectangle 12" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_12 = new THREE.Group();
-  Rectangle_12.position.set(7.775672, 74.956093, 3.140863);
-  Rectangle_12.rotation.set(-1.570796, 1.570796, 0);
+  const Rectangle_12 = new THREE.Mesh(
+    rectExtrudeGeometry_8,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_12.name = 'Rectangle 12';
+  Rectangle_12.position.set(7.775672, -10.931322, 0.553126);
+  Rectangle_12.rotation.set(-1.561668, 1.570796, 0);
   Rectangle_12.scale.set(1, 1.00292, 1);
   Rectangle_12.castShadow = true;
   Rectangle_12.receiveShadow = true;
   shin.add(Rectangle_12);
 
-  // TODO(phase 3): "Rectangle 11" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_11 = new THREE.Group();
-  Rectangle_11.position.set(-18.023087, 74.956092, 3.140863);
-  Rectangle_11.rotation.set(-1.570796, 1.570796, 0);
+  const Rectangle_11 = new THREE.Mesh(
+    rectExtrudeGeometry_9,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_11.name = 'Rectangle 11';
+  Rectangle_11.position.set(-18.023087, -10.931323, 0.553126);
+  Rectangle_11.rotation.set(-1.561668, 1.570796, 0);
   Rectangle_11.scale.set(1, 1.00292, 1);
   Rectangle_11.castShadow = true;
   Rectangle_11.receiveShadow = true;
   shin.add(Rectangle_11);
 
-  // TODO(phase 3): "Ellipse 3" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_3_3 = new THREE.Group();
-  Ellipse_3_3.position.set(1.276419, 145.552649, -3.677815);
+  const Ellipse_3_3 = new THREE.Mesh(
+    ellipseExtrudeGeometry_10,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_3_3.name = 'Ellipse 3';
+  Ellipse_3_3.position.set(1.276419, -29.423016, -1.275851);
   Ellipse_3_3.rotation.set(1.570796, 0, 0);
   Ellipse_3_3.castShadow = true;
   Ellipse_3_3.receiveShadow = true;
   Leg_Left_Instance.add(Ellipse_3_3);
 
-  // TODO(phase 3): "Ellipse 2" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_2_3 = new THREE.Group();
-  Ellipse_2_3.position.set(1.276419, 151.684418, -3.677815);
+  const Ellipse_2_3 = new THREE.Mesh(
+    ellipseExtrudeGeometry_11,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_2_3.name = 'Ellipse 2';
+  Ellipse_2_3.position.set(1.276419, -23.291247, -1.275851);
   Ellipse_2_3.rotation.set(1.570796, 0, 0);
   Ellipse_2_3.castShadow = true;
   Ellipse_2_3.receiveShadow = true;
   Leg_Left_Instance.add(Ellipse_2_3);
 
-  // TODO(phase 3): "Rectangle 8" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_8 = new THREE.Group();
-  Rectangle_8.position.set(-11.820034, 123.633083, -4.023472);
+  const Rectangle_8 = new THREE.Mesh(
+    rectExtrudeGeometry_10,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_8.name = 'Rectangle 8';
+  Rectangle_8.position.set(-11.820034, -51.342582, -1.621507);
   Rectangle_8.rotation.set(-1.570796, 1.570796, 0);
   Rectangle_8.scale.set(1, 1.00292, 1);
   Rectangle_8.castShadow = true;
   Rectangle_8.receiveShadow = true;
   Leg_Left_Instance.add(Rectangle_8);
 
-  // TODO(phase 3): "Rectangle 7" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_7 = new THREE.Group();
-  Rectangle_7.position.set(-2.67961, 165.267111, -2.376471);
+  const Rectangle_7 = new THREE.Mesh(
+    rectExtrudeGeometry_11,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_7.name = 'Rectangle 7';
+  Rectangle_7.position.set(-2.67961, -9.708554, 0.025493);
   Rectangle_7.rotation.set(1.570796, 1.570796, 0);
   Rectangle_7.scale.set(1, 1.00292, 1);
   Rectangle_7.castShadow = true;
@@ -806,7 +1103,7 @@ export function buildScene() {
 
   const Leg_Left = new THREE.Group();
   Leg_Left.name = 'Leg Left';
-  Leg_Left.position.set(49.100531, 152.350021, 6.963627);
+  Leg_Left.position.set(49.100531, 2.780147, 23.601931);
   Leg_Left.rotation.set(0.127625, 0.305371, 0);
   Bottom.add(Leg_Left);
 
@@ -815,27 +1112,34 @@ export function buildScene() {
   femur_2.position.set(2.574232, -66.66871, 0.633899);
   Leg_Left.add(femur_2);
 
-  // TODO(phase 3): "Cube 3" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_3_4 = new THREE.Group();
-  Cube_3_4.position.set(-0.695858, -1.555922, -1.795629);
+  const Cube_3_4 = bakedAssets['0af65925-4bc2-4280-ad85-d572d51a5599'].clone();
+  Cube_3_4.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_3_4.name = 'Cube 3';
+  Cube_3_4.position.set(-0.695858, -51.541058, -1.795629);
   Cube_3_4.rotation.set(1.570796, 0, -3.141593);
   Cube_3_4.scale.set(1, 1, 1);
   Cube_3_4.castShadow = true;
   Cube_3_4.receiveShadow = true;
   femur_2.add(Cube_3_4);
 
-  // TODO(phase 3): "Rectangle 9" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_9_2 = new THREE.Group();
-  Rectangle_9_2.position.set(-2.543438, 47.854355, -2.255406);
+  const Rectangle_9_2 = new THREE.Mesh(
+    rectExtrudeGeometry_6,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_9_2.name = 'Rectangle 9';
+  Rectangle_9_2.position.set(-2.543438, -2.130781, -2.255406);
   Rectangle_9_2.rotation.set(-1.570796, 1.570796, 0);
   Rectangle_9_2.scale.set(1, 1.00292, 1);
   Rectangle_9_2.castShadow = true;
   Rectangle_9_2.receiveShadow = true;
   femur_2.add(Rectangle_9_2);
 
-  // TODO(phase 3): "Rectangle 10" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_10_2 = new THREE.Group();
-  Rectangle_10_2.position.set(-9.695649, -42.919856, -2.255406);
+  const Rectangle_10_2 = new THREE.Mesh(
+    rectExtrudeGeometry_7,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_10_2.name = 'Rectangle 10';
+  Rectangle_10_2.position.set(-9.695649, -92.904992, -2.255406);
   Rectangle_10_2.rotation.set(-1.570796, 1.570796, 0);
   Rectangle_10_2.scale.set(1, 1.00292, 1);
   Rectangle_10_2.castShadow = true;
@@ -844,9 +1148,8 @@ export function buildScene() {
 
   const shin_2 = new THREE.Group();
   shin_2.name = 'shin';
-  shin_2.position.set(-2.574232, -64.526822, -2.908291);
+  shin_2.position.set(-2.574232, -114.511958, -2.908291);
   shin_2.rotation.set(-0.141838, 0, 0);
-  shin_2.scale.set(1, 1, 1);
   femur_2.add(shin_2);
 
   const Foot_2 = new THREE.Group();
@@ -854,88 +1157,114 @@ export function buildScene() {
   Foot_2.position.set(0, -160.389901, -18.689457);
   shin_2.add(Foot_2);
 
-  // TODO(phase 3): "Cube 5" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_5_2 = new THREE.Group();
-  Cube_5_2.position.set(1.3138, -9.356308, -9.384017);
-  Cube_5_2.rotation.set(0, -0.140367, 0);
+  const Cube_5_2 = bakedAssets['3bcae6d8-b8ea-4433-8835-884fb5cf60a0'].clone();
+  Cube_5_2.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
+  Cube_5_2.name = 'Cube 5';
+  Cube_5_2.position.set(1.3138, -9.356308, 18.236206);
+  Cube_5_2.rotation.set(0.009128, -0.140367, 0);
   Cube_5_2.scale.set(1, 1, 1);
   Cube_5_2.castShadow = true;
   Cube_5_2.receiveShadow = true;
   Foot_2.add(Cube_5_2);
 
-  // TODO(phase 3): "Ellipse 5" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_5_4 = new THREE.Group();
-  Ellipse_5_4.position.set(2.805771, 24.449085, -26.838991);
-  Ellipse_5_4.rotation.set(1.438991, 0, 3.141593);
+  const Ellipse_5_4 = new THREE.Mesh(
+    ellipseExtrudeGeometry_8,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_5_4.name = 'Ellipse 5';
+  Ellipse_5_4.position.set(2.805771, -61.162566, -29.886513);
+  Ellipse_5_4.rotation.set(1.448119, 0, 3.141593);
   Ellipse_5_4.scale.set(1, 1, 1);
   Ellipse_5_4.castShadow = true;
   Ellipse_5_4.receiveShadow = true;
   shin_2.add(Ellipse_5_4);
 
-  // TODO(phase 3): "Cube 4" used SubdivGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Cube_4_2 = new THREE.Group();
-  Cube_4_2.position.set(1.26208, 9.302013, 3.463357);
-  Cube_4_2.rotation.set(1.570796, 0, -3.141593);
+  const Cube_4_2 = bakedAssets['557fa3b3-244a-4b5f-b902-3791f6286bb5'].clone();
+  Cube_4_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
+  Cube_4_2.name = 'Cube 4';
+  Cube_4_2.position.set(1.26208, -76.585611, 0.276309);
+  Cube_4_2.rotation.set(1.579925, 0, -3.141593);
   Cube_4_2.scale.set(1, 1, 1);
   Cube_4_2.castShadow = true;
   Cube_4_2.receiveShadow = true;
   shin_2.add(Cube_4_2);
 
-  // TODO(phase 3): "Ellipse 4" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_4_4 = new THREE.Group();
-  Ellipse_4_4.position.set(1.3138, 73.224369, 3.463357);
-  Ellipse_4_4.rotation.set(1.570796, 0, -3.141593);
+  const Ellipse_4_4 = new THREE.Mesh(
+    ellipseExtrudeGeometry_9,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_4_4.name = 'Ellipse 4';
+  Ellipse_4_4.position.set(1.3138, -12.665917, 0.8598);
+  Ellipse_4_4.rotation.set(1.579925, 0, -3.141593);
   Ellipse_4_4.scale.set(1, 1, 1);
   Ellipse_4_4.castShadow = true;
   Ellipse_4_4.receiveShadow = true;
   shin_2.add(Ellipse_4_4);
 
-  // TODO(phase 3): "Rectangle 12" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_12_2 = new THREE.Group();
-  Rectangle_12_2.position.set(7.775672, 74.956093, 3.140863);
-  Rectangle_12_2.rotation.set(-1.570796, 1.570796, 0);
+  const Rectangle_12_2 = new THREE.Mesh(
+    rectExtrudeGeometry_8,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_12_2.name = 'Rectangle 12';
+  Rectangle_12_2.position.set(7.775672, -10.931322, 0.553126);
+  Rectangle_12_2.rotation.set(-1.561668, 1.570796, 0);
   Rectangle_12_2.scale.set(1, 1.00292, 1);
   Rectangle_12_2.castShadow = true;
   Rectangle_12_2.receiveShadow = true;
   shin_2.add(Rectangle_12_2);
 
-  // TODO(phase 3): "Rectangle 11" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_11_2 = new THREE.Group();
-  Rectangle_11_2.position.set(-18.023087, 74.956092, 3.140863);
-  Rectangle_11_2.rotation.set(-1.570796, 1.570796, 0);
+  const Rectangle_11_2 = new THREE.Mesh(
+    rectExtrudeGeometry_9,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_11_2.name = 'Rectangle 11';
+  Rectangle_11_2.position.set(-18.023087, -10.931323, 0.553126);
+  Rectangle_11_2.rotation.set(-1.561668, 1.570796, 0);
   Rectangle_11_2.scale.set(1, 1.00292, 1);
   Rectangle_11_2.castShadow = true;
   Rectangle_11_2.receiveShadow = true;
   shin_2.add(Rectangle_11_2);
 
-  // TODO(phase 3): "Ellipse 3" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_3_4 = new THREE.Group();
-  Ellipse_3_4.position.set(1.276419, 145.552649, -3.677815);
+  const Ellipse_3_4 = new THREE.Mesh(
+    ellipseExtrudeGeometry_10,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_3_4.name = 'Ellipse 3';
+  Ellipse_3_4.position.set(1.276419, -29.423016, -1.275851);
   Ellipse_3_4.rotation.set(1.570796, 0, 0);
   Ellipse_3_4.castShadow = true;
   Ellipse_3_4.receiveShadow = true;
   Leg_Left.add(Ellipse_3_4);
 
-  // TODO(phase 3): "Ellipse 2" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_2_4 = new THREE.Group();
-  Ellipse_2_4.position.set(1.276419, 151.684418, -3.677815);
+  const Ellipse_2_4 = new THREE.Mesh(
+    ellipseExtrudeGeometry_11,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_2_4.name = 'Ellipse 2';
+  Ellipse_2_4.position.set(1.276419, -23.291247, -1.275851);
   Ellipse_2_4.rotation.set(1.570796, 0, 0);
   Ellipse_2_4.castShadow = true;
   Ellipse_2_4.receiveShadow = true;
   Leg_Left.add(Ellipse_2_4);
 
-  // TODO(phase 3): "Rectangle 8" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_8_2 = new THREE.Group();
-  Rectangle_8_2.position.set(-11.820034, 123.633083, -4.023472);
+  const Rectangle_8_2 = new THREE.Mesh(
+    rectExtrudeGeometry_10,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_8_2.name = 'Rectangle 8';
+  Rectangle_8_2.position.set(-11.820034, -51.342582, -1.621507);
   Rectangle_8_2.rotation.set(-1.570796, 1.570796, 0);
   Rectangle_8_2.scale.set(1, 1.00292, 1);
   Rectangle_8_2.castShadow = true;
   Rectangle_8_2.receiveShadow = true;
   Leg_Left.add(Rectangle_8_2);
 
-  // TODO(phase 3): "Rectangle 7" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_7_2 = new THREE.Group();
-  Rectangle_7_2.position.set(-2.67961, 165.267111, -2.376471);
+  const Rectangle_7_2 = new THREE.Mesh(
+    rectExtrudeGeometry_11,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_7_2.name = 'Rectangle 7';
+  Rectangle_7_2.position.set(-2.67961, -9.708554, 0.025493);
   Rectangle_7_2.rotation.set(1.570796, 1.570796, 0);
   Rectangle_7_2.scale.set(1, 1.00292, 1);
   Rectangle_7_2.castShadow = true;
@@ -944,7 +1273,7 @@ export function buildScene() {
 
   const Pelvic = new THREE.Group();
   Pelvic.name = 'Pelvic';
-  Pelvic.position.set(-1.369381, 163.074319, -17.596849);
+  Pelvic.position.set(-1.369381, 13.504445, -0.958545);
   Bottom.add(Pelvic);
 
   const Group_2_3 = new THREE.Group();
@@ -953,8 +1282,11 @@ export function buildScene() {
   Group_2_3.scale.set(-1, 1, 1);
   Pelvic.add(Group_2_3);
 
-  // TODO(phase 3): "Rectangle 5" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_5_2 = new THREE.Group();
+  const Rectangle_5_2 = new THREE.Mesh(
+    rectExtrudeGeometry_12,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_5_2.name = 'Rectangle 5';
   Rectangle_5_2.position.set(-15.647526, 1.409058, 1.518551);
   Rectangle_5_2.rotation.set(3.141593, 1.570796, 0);
   Rectangle_5_2.scale.set(1, 1, 1);
@@ -962,8 +1294,11 @@ export function buildScene() {
   Rectangle_5_2.receiveShadow = true;
   Group_2_3.add(Rectangle_5_2);
 
-  // TODO(phase 3): "Ellipse" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_8 = new THREE.Group();
+  const Ellipse_8 = new THREE.Mesh(
+    ellipseExtrudeGeometry_12,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_8.name = 'Ellipse';
   Ellipse_8.position.set(0, 0, -21.967565);
   Ellipse_8.rotation.set(0, 0, -3.141593);
   Ellipse_8.scale.set(1, 1, 1);
@@ -976,8 +1311,11 @@ export function buildScene() {
   Group_9.position.set(48.587897, -13.74685, 14.786791);
   Pelvic.add(Group_9);
 
-  // TODO(phase 3): "Rectangle 5" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_5_3 = new THREE.Group();
+  const Rectangle_5_3 = new THREE.Mesh(
+    rectExtrudeGeometry_13,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_5_3.name = 'Rectangle 5';
   Rectangle_5_3.position.set(-15.647526, 1.409058, 1.518551);
   Rectangle_5_3.rotation.set(3.141593, 1.570796, 0);
   Rectangle_5_3.scale.set(1, 1, 1);
@@ -985,8 +1323,11 @@ export function buildScene() {
   Rectangle_5_3.receiveShadow = true;
   Group_9.add(Rectangle_5_3);
 
-  // TODO(phase 3): "Ellipse" used EllipseGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Ellipse_9 = new THREE.Group();
+  const Ellipse_9 = new THREE.Mesh(
+    ellipseExtrudeGeometry_13,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Ellipse_9.name = 'Ellipse';
   Ellipse_9.position.set(0, 0, -21.967565);
   Ellipse_9.rotation.set(0, 0, -3.141593);
   Ellipse_9.scale.set(1, 1, 1);
@@ -994,8 +1335,11 @@ export function buildScene() {
   Ellipse_9.receiveShadow = true;
   Group_9.add(Ellipse_9);
 
-  // TODO(phase 3): "Rectangle 4" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_4_3 = new THREE.Group();
+  const Rectangle_4_3 = new THREE.Mesh(
+    rectExtrudeGeometry_14,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_4_3.name = 'Rectangle 4';
   Rectangle_4_3.position.set(0, -13.172924, -5.527948);
   Rectangle_4_3.rotation.set(-3.141593, 0, 0);
   Rectangle_4_3.scale.set(1, 0.875405, 1);
@@ -1008,8 +1352,11 @@ export function buildScene() {
   Group_3_2.position.set(0, -13.172924, 0.664054);
   Pelvic.add(Group_3_2);
 
-  // TODO(phase 3): "Rectangle 3" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_3_3 = new THREE.Group();
+  const Rectangle_3_3 = new THREE.Mesh(
+    rectExtrudeGeometry_15,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_3_3.name = 'Rectangle 3';
   Rectangle_3_3.position.set(25.70892, 0, 0);
   Rectangle_3_3.rotation.set(1.570796, -1.570796, 0);
   Rectangle_3_3.scale.set(1, 0.875405, 1);
@@ -1017,8 +1364,11 @@ export function buildScene() {
   Rectangle_3_3.receiveShadow = true;
   Group_3_2.add(Rectangle_3_3);
 
-  // TODO(phase 3): "Rectangle" used RectangleGeometry geometry (organic/vector/procedural geometry -- handled in phase 3 (glTF bake) or a later pass); standing in with an empty Group so its children still attach correctly.
-  const Rectangle_6 = new THREE.Group();
+  const Rectangle_6 = new THREE.Mesh(
+    rectExtrudeGeometry_16,
+    materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'],
+  );
+  Rectangle_6.name = 'Rectangle';
   Rectangle_6.position.set(0, 61.488752, 0.664054);
   Rectangle_6.rotation.set(1.570796, 0, 0);
   Rectangle_6.castShadow = true;

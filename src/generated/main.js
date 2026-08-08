@@ -9,7 +9,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xe4e4e4);
 
-const { root, cameras, lights } = buildScene();
+const { root, cameras, lights } = await buildScene();
 scene.add(root);
 
 const camera = cameras['Camera 2'];
