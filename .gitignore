@@ -1,3 +1,7 @@
 node_modules/
 dist/
 public/wasm/
+
+# intermediate extraction dump -- regenerate with `npm run scene:extract`
+# (root-anchored: leaves src/generated/, the actual codegen output, tracked)
+/generated/

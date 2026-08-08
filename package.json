@@ -7,7 +7,10 @@
     "postinstall": "node scripts/copy-wasm.mjs",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "scene:extract": "node scripts/extract-scene.mjs",
+    "scene:generate": "node scripts/generate-scene.mjs",
+    "scene:codegen": "npm run scene:extract && npm run scene:generate"
   },
   "dependencies": {
     "@splinetool/runtime": "^1.9.48",
@@ -19,6 +22,7 @@
     "@splinetool/navmesh-wasm": "^1.12.98",
     "@splinetool/ui-wasm": "^1.12.98",
     "playwright": "^1.62.1",
+    "prettier": "^3.9.6",
     "vite": "^5.4.0"
   }
 }
