@@ -2,6 +2,7 @@ import { Application } from '@splinetool/runtime';
 
 const canvas = document.getElementById('app');
 const app = new Application(canvas, { wasmPath: '/wasm' });
+window.__app = app;
 
 app
   .load('/scene.splinecode')
