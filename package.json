@@ -13,7 +13,8 @@
     "materials:extract": "node scripts/extract-materials.mjs",
     "materials:generate": "node scripts/generate-materials.mjs",
     "materials:verify": "node scripts/verify-materials.mjs",
-    "scene:codegen": "npm run scene:extract && npm run materials:extract && npm run materials:generate && npm run scene:generate && npm run materials:verify"
+    "scene:codegen": "npm run scene:extract && npm run materials:extract && npm run materials:generate && npm run scene:generate && npm run materials:verify",
+    "verify:render": "node scripts/verify-render.mjs"
   },
   "dependencies": {
     "@splinetool/runtime": "^1.9.48",
@@ -24,7 +25,9 @@
     "@splinetool/modelling-wasm": "^1.12.98",
     "@splinetool/navmesh-wasm": "^1.12.98",
     "@splinetool/ui-wasm": "^1.12.98",
+    "pixelmatch": "^7.2.0",
     "playwright": "^1.62.1",
+    "pngjs": "^7.0.0",
     "prettier": "^3.9.6",
     "vite": "^5.4.0"
   }

@@ -175,8 +175,8 @@ export async function buildScene() {
 
   const Camera_2 = new THREE.PerspectiveCamera(45, 1, 70, 100000); // aspect set by caller based on viewport
   Camera_2.name = 'Camera 2';
-  Camera_2.position.set(0, 239.495807, 419.508659);
-  Camera_2.rotation.set(0.01379, 0, 0);
+  Camera_2.position.set(0, 249.040801, 359.618502);
+  Camera_2.rotation.set(0.014491, 0, 0);
   root.add(Camera_2);
 
   const Point_Light = new THREE.PointLight(0xffffff, 5000000); // intensity includes an empirical distance-falloff calibration factor, see DISTANCE_FALLOFF_LIGHT_CALIBRATION in generate-scene.mjs
@@ -191,7 +191,7 @@ export async function buildScene() {
   logo.scale.set(0.3, 0.3, 0.3);
   root.add(logo);
 
-  const Shape_0 = bakedAssets['949d731f-1b2e-4a84-8fb0-c8b315c0eb3d'].clone();
+  const Shape_0 = bakedAssets['cb0648bb-0adc-49d5-aa58-7c5b9c9bce40'].clone();
   Shape_0.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_0.name = 'Shape 0';
   Shape_0.position.set(-1919, 250, -0.03);
@@ -199,7 +199,7 @@ export async function buildScene() {
   Shape_0.receiveShadow = true;
   logo.add(Shape_0);
 
-  const Shape_1 = bakedAssets['98015c74-ea61-4151-ab2b-65b3f131dbe9'].clone();
+  const Shape_1 = bakedAssets['9a7c1cc6-16b9-4654-b64e-1ec914a17f03'].clone();
   Shape_1.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_1.name = 'Shape 1';
   Shape_1.position.set(696, 250, -0.02);
@@ -207,7 +207,7 @@ export async function buildScene() {
   Shape_1.receiveShadow = true;
   logo.add(Shape_1);
 
-  const Shape_2 = bakedAssets['7c1fb90b-199f-4ddf-9eb0-a59badc53393'].clone();
+  const Shape_2 = bakedAssets['b42837c2-ff47-405b-9887-13154cadcbe8'].clone();
   Shape_2.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_2.name = 'Shape 2';
   Shape_2.position.set(1319, 250, -0.01);
@@ -215,7 +215,7 @@ export async function buildScene() {
   Shape_2.receiveShadow = true;
   logo.add(Shape_2);
 
-  const Shape_3 = bakedAssets['3737fca8-fc70-4613-9587-62507c805a7d'].clone();
+  const Shape_3 = bakedAssets['4396cc02-568c-4355-8fc0-755f43c9e4a8'].clone();
   Shape_3.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_3.name = 'Shape 3';
   Shape_3.position.set(-1165, 250, 0);
@@ -223,7 +223,7 @@ export async function buildScene() {
   Shape_3.receiveShadow = true;
   logo.add(Shape_3);
 
-  const Shape_4 = bakedAssets['c36a3f79-057c-484e-b1fc-652f45f5d2c2'].clone();
+  const Shape_4 = bakedAssets['76b66c25-1004-40cc-bc46-5f9792f66e12'].clone();
   Shape_4.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_4.name = 'Shape 4';
   Shape_4.position.set(-1265, 50, 0.01);
@@ -231,7 +231,7 @@ export async function buildScene() {
   Shape_4.receiveShadow = true;
   logo.add(Shape_4);
 
-  const Shape_5 = bakedAssets['5dad03af-6afd-417e-8d7d-62570c54e92f'].clone();
+  const Shape_5 = bakedAssets['f640394d-5f50-4c6d-8e99-1487d7579c01'].clone();
   Shape_5.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_5.name = 'Shape 5';
   Shape_5.position.set(42, 250, 0.02);
@@ -239,7 +239,7 @@ export async function buildScene() {
   Shape_5.receiveShadow = true;
   logo.add(Shape_5);
 
-  const Shape_6 = bakedAssets['d7b4743a-923d-4e44-a994-b06a683d2b9a'].clone();
+  const Shape_6 = bakedAssets['23a18e23-65a5-4e8d-8b31-52485ed9e06a'].clone();
   Shape_6.material = materials['ac839791-b0cd-406c-a276-0d8c6f6ecfd8'];
   Shape_6.name = 'Shape 6';
   Shape_6.position.set(-612, 250, 0.03);
@@ -263,7 +263,7 @@ export async function buildScene() {
   Head.position.set(0.184025, 183.553801, 18.621848);
   Top_part.add(Head);
 
-  const Head_2 = bakedAssets['409c56f3-27a8-4c30-ad97-0f158f946562'].clone();
+  const Head_2 = bakedAssets['8415267f-a76a-464a-bb58-e348bec8bd5d'].clone();
   Head_2.material = materials['ed42926e-48d3-4907-8975-3cec662ff058'];
   Head_2.name = 'Head 2';
   Head_2.position.set(0, 42.940033, 4.00351);
@@ -285,7 +285,7 @@ export async function buildScene() {
   Cube.receiveShadow = true;
   Neck.add(Cube);
 
-  const Cylinder_3 = bakedAssets['b9239896-be00-4f06-a195-00413a0a2f5a'].clone();
+  const Cylinder_3 = bakedAssets['36b10a54-ff2a-4885-8e88-51b6159c9e38'].clone();
   Cylinder_3.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cylinder_3.name = 'Cylinder 3';
   Cylinder_3.position.set(0, -34.319604, -3.149482);
@@ -307,7 +307,7 @@ export async function buildScene() {
   Group_2.scale.set(-1, 1, 1);
   Group_3.add(Group_2);
 
-  const Cylinder_4 = bakedAssets['0a37989e-4613-4c67-90d2-73f1d9e54c7b'].clone();
+  const Cylinder_4 = bakedAssets['1b701e83-cd80-43dc-a430-8b0d1b1dc05c'].clone();
   Cylinder_4.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cylinder_4.name = 'Cylinder 4';
   Cylinder_4.position.set(0, 0, 0);
@@ -322,7 +322,7 @@ export async function buildScene() {
   Group.position.set(-20.598127, 0, 0);
   Group_3.add(Group);
 
-  const Cylinder_4_2 = bakedAssets['c0b9056a-17ee-441a-9563-9dbbff28f4fd'].clone();
+  const Cylinder_4_2 = bakedAssets['92efe698-494d-4960-80f5-1c58719ff8f7'].clone();
   Cylinder_4_2.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cylinder_4_2.name = 'Cylinder 4';
   Cylinder_4_2.position.set(0, 0, 0);
@@ -332,7 +332,7 @@ export async function buildScene() {
   Cylinder_4_2.receiveShadow = true;
   Group.add(Cylinder_4_2);
 
-  const Cylinder = bakedAssets['6aa68db3-9d4b-4981-87d0-297190110938'].clone();
+  const Cylinder = bakedAssets['18d4da61-f370-46ec-bdfa-d8f23ba01003'].clone();
   Cylinder.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cylinder.name = 'Cylinder';
   Cylinder.position.set(0, 12.026392, 4.411749);
@@ -438,14 +438,13 @@ export async function buildScene() {
   const Hand_LEFT = new THREE.Group();
   Hand_LEFT.name = 'Hand LEFT';
   Hand_LEFT.position.set(-40.588189, 98.305221, -3.47071);
-  Hand_LEFT.rotation.set(0, 0, 0.109266);
+  Hand_LEFT.rotation.set(0, 0, 0.085987);
   Hand_LEFT.scale.set(1, 1, 1);
   Hand_Instance.add(Hand_LEFT);
 
   const arm = new THREE.Group();
   arm.name = 'arm';
   arm.position.set(24.873446, 7.425945, 2.202431);
-  arm.rotation.set(-0.009823, 0, 0);
   Hand_LEFT.add(arm);
 
   const elbow = new THREE.Group();
@@ -493,7 +492,7 @@ export async function buildScene() {
   forearm.scale.set(1, 1, 1);
   elbow.add(forearm);
 
-  const Hand = bakedAssets['4feda8e9-da53-4e23-a009-e25ad1201511'].clone();
+  const Hand = bakedAssets['79a4ba0f-9e43-4d58-9a7a-7e1ab50b9699'].clone();
   Hand.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Hand.name = 'Hand';
   Hand.position.set(-9.434524, -91.204258, 36.550164);
@@ -539,7 +538,7 @@ export async function buildScene() {
   Ellipse_4.receiveShadow = true;
   forearm.add(Ellipse_4);
 
-  const Cube_3 = bakedAssets['e1212104-ac4d-445c-9435-4cb24744d1ca'].clone();
+  const Cube_3 = bakedAssets['ae3f87c5-953e-49a3-9f27-9589c9cb30cf'].clone();
   Cube_3.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_3.name = 'Cube 3';
   Cube_3.position.set(-0.423061, -62.578567, 23.356696);
@@ -549,7 +548,7 @@ export async function buildScene() {
   Cube_3.receiveShadow = true;
   forearm.add(Cube_3);
 
-  const Cube_2 = bakedAssets['ccc16205-94d2-4a75-b22b-8bc9919a01f5'].clone();
+  const Cube_2 = bakedAssets['86ca202a-a58f-46ff-b733-a54e7452518b'].clone();
   Cube_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_2.name = 'Cube 2';
   Cube_2.position.set(23.34458, -26.18998, -4.771457);
@@ -603,14 +602,13 @@ export async function buildScene() {
   const Hand_LEFT_2 = new THREE.Group();
   Hand_LEFT_2.name = 'Hand LEFT';
   Hand_LEFT_2.position.set(-40.588189, 98.305221, -3.47071);
-  Hand_LEFT_2.rotation.set(0, 0, 0.109266);
+  Hand_LEFT_2.rotation.set(0, 0, 0.085987);
   Hand_LEFT_2.scale.set(1, 1, 1);
   Hand_2.add(Hand_LEFT_2);
 
   const arm_2 = new THREE.Group();
   arm_2.name = 'arm';
   arm_2.position.set(24.873446, 7.425945, 2.202431);
-  arm_2.rotation.set(-0.009823, 0, 0);
   Hand_LEFT_2.add(arm_2);
 
   const elbow_2 = new THREE.Group();
@@ -658,7 +656,7 @@ export async function buildScene() {
   forearm_2.scale.set(1, 1, 1);
   elbow_2.add(forearm_2);
 
-  const Hand_3 = bakedAssets['4feda8e9-da53-4e23-a009-e25ad1201511'].clone();
+  const Hand_3 = bakedAssets['79a4ba0f-9e43-4d58-9a7a-7e1ab50b9699'].clone();
   Hand_3.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Hand_3.name = 'Hand';
   Hand_3.position.set(-9.434524, -91.204258, 36.550164);
@@ -704,7 +702,7 @@ export async function buildScene() {
   Ellipse_4_2.receiveShadow = true;
   forearm_2.add(Ellipse_4_2);
 
-  const Cube_3_2 = bakedAssets['e1212104-ac4d-445c-9435-4cb24744d1ca'].clone();
+  const Cube_3_2 = bakedAssets['ae3f87c5-953e-49a3-9f27-9589c9cb30cf'].clone();
   Cube_3_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_3_2.name = 'Cube 3';
   Cube_3_2.position.set(-0.423061, -62.578567, 23.356696);
@@ -714,7 +712,7 @@ export async function buildScene() {
   Cube_3_2.receiveShadow = true;
   forearm_2.add(Cube_3_2);
 
-  const Cube_2_2 = bakedAssets['ccc16205-94d2-4a75-b22b-8bc9919a01f5'].clone();
+  const Cube_2_2 = bakedAssets['86ca202a-a58f-46ff-b733-a54e7452518b'].clone();
   Cube_2_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_2_2.name = 'Cube 2';
   Cube_2_2.position.set(23.34458, -26.18998, -4.771457);
@@ -760,7 +758,7 @@ export async function buildScene() {
   Rectangle_2_2.receiveShadow = true;
   Hand_LEFT_2.add(Rectangle_2_2);
 
-  const Body = bakedAssets['0ea9824d-43d1-4abd-af8f-6d4788a3753e'].clone();
+  const Body = bakedAssets['f4b44f12-5c85-4930-bd5b-15bdfaf18770'].clone();
   Body.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Body.name = 'Body';
   Body.position.set(0.184025, -111.858585, 10.701127);
@@ -845,7 +843,7 @@ export async function buildScene() {
   Group_2_2.scale.set(-1, 1, 1);
   Group_4_2.add(Group_2_2);
 
-  const Cylinder_4_3 = bakedAssets['883b7148-7212-4585-aa4c-18f880cec83d'].clone();
+  const Cylinder_4_3 = bakedAssets['66dcbdc9-452e-4aef-b507-31dda6fb56e1'].clone();
   Cylinder_4_3.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cylinder_4_3.name = 'Cylinder 4';
   Cylinder_4_3.position.set(0, 0, 0);
@@ -860,7 +858,7 @@ export async function buildScene() {
   Group_8.position.set(-20.598127, 0, 0);
   Group_4_2.add(Group_8);
 
-  const Cylinder_4_4 = bakedAssets['883b7148-7212-4585-aa4c-18f880cec83d'].clone();
+  const Cylinder_4_4 = bakedAssets['66dcbdc9-452e-4aef-b507-31dda6fb56e1'].clone();
   Cylinder_4_4.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cylinder_4_4.name = 'Cylinder 4';
   Cylinder_4_4.position.set(0, 0, 0);
@@ -882,7 +880,7 @@ export async function buildScene() {
   femur.position.set(2.574232, -66.66871, 0.633899);
   Leg_Left_Instance.add(femur);
 
-  const Cube_3_3 = bakedAssets['a4a63ef0-db98-4a57-964f-c30c7a15f1e6'].clone();
+  const Cube_3_3 = bakedAssets['588c64c8-5d22-4490-97e0-c6532c1d3b55'].clone();
   Cube_3_3.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_3_3.name = 'Cube 3';
   Cube_3_3.position.set(-0.695858, -51.541058, -1.795629);
@@ -927,7 +925,7 @@ export async function buildScene() {
   Foot.position.set(0, -160.389901, -18.689457);
   shin.add(Foot);
 
-  const Cube_5 = bakedAssets['dc024018-5e36-436f-a767-3ee3f84001ed'].clone();
+  const Cube_5 = bakedAssets['e61c9762-9a58-4982-9365-ba6a83b201d8'].clone();
   Cube_5.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cube_5.name = 'Cube 5';
   Cube_5.position.set(1.3138, -9.356308, 18.236206);
@@ -949,7 +947,7 @@ export async function buildScene() {
   Ellipse_5_3.receiveShadow = true;
   shin.add(Ellipse_5_3);
 
-  const Cube_4 = bakedAssets['dbc9f0bf-c295-421b-871d-7527688a3e08'].clone();
+  const Cube_4 = bakedAssets['95ec0a3a-761e-447d-98ac-766b0fe6831e'].clone();
   Cube_4.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_4.name = 'Cube 4';
   Cube_4.position.set(1.26208, -76.585611, 0.276309);
@@ -1052,7 +1050,7 @@ export async function buildScene() {
   femur_2.position.set(2.574232, -66.66871, 0.633899);
   Leg_Left.add(femur_2);
 
-  const Cube_3_4 = bakedAssets['a4a63ef0-db98-4a57-964f-c30c7a15f1e6'].clone();
+  const Cube_3_4 = bakedAssets['588c64c8-5d22-4490-97e0-c6532c1d3b55'].clone();
   Cube_3_4.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_3_4.name = 'Cube 3';
   Cube_3_4.position.set(-0.695858, -51.541058, -1.795629);
@@ -1097,7 +1095,7 @@ export async function buildScene() {
   Foot_2.position.set(0, -160.389901, -18.689457);
   shin_2.add(Foot_2);
 
-  const Cube_5_2 = bakedAssets['dc024018-5e36-436f-a767-3ee3f84001ed'].clone();
+  const Cube_5_2 = bakedAssets['e61c9762-9a58-4982-9365-ba6a83b201d8'].clone();
   Cube_5_2.material = materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'];
   Cube_5_2.name = 'Cube 5';
   Cube_5_2.position.set(1.3138, -9.356308, 18.236206);
@@ -1119,7 +1117,7 @@ export async function buildScene() {
   Ellipse_5_4.receiveShadow = true;
   shin_2.add(Ellipse_5_4);
 
-  const Cube_4_2 = bakedAssets['dbc9f0bf-c295-421b-871d-7527688a3e08'].clone();
+  const Cube_4_2 = bakedAssets['95ec0a3a-761e-447d-98ac-766b0fe6831e'].clone();
   Cube_4_2.material = materials['342265b2-6982-4c49-b670-fee0149640a3'];
   Cube_4_2.name = 'Cube 4';
   Cube_4_2.position.set(1.26208, -76.585611, 0.276309);

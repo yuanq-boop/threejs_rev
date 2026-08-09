@@ -50,8 +50,17 @@ function fitCameraToObject(cam, object, paddingFactor = 1.1) {
 // camera much further out than the reference's actual framing, which is
 // clearly composed around the robot alone (the logo just extends past the
 // frame edges, visible or not, rather than needing to be "fit").
+//
+// ?fit=0 skips this and leaves the camera at its raw extracted Camera 2
+// transform -- used by scripts/verify-render.mjs, which needs the SAME
+// camera as the reference for a pixel diff to mean anything. The reference
+// app's camera can't be scripted to an arbitrary angle (Spline's own render
+// loop re-applies its transform every frame regardless), so the raw
+// extracted transform is the only camera state guaranteed comparable
+// between the two renderers.
+const skipFit = new URLSearchParams(location.search).get('fit') === '0';
 const bot = root.getObjectByName('Bot') ?? root;
-fitCameraToObject(camera, bot);
+if (!skipFit) fitCameraToObject(camera, bot);
 
 window.__generatedScene = scene;
 window.__generatedCamera = camera;
