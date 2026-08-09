@@ -1,7 +1,10 @@
 // Dev-only tool (not part of the generated app): loads the Spline scene via
 // @splinetool/runtime, harvests the already wasm-computed BufferGeometry off
-// every SubdivGeometry/VectorGeometry mesh (deduped by geometry.uuid so
-// mirrored left/right body parts aren't exported twice), rebuilds each as a
+// every SubdivGeometry/VectorGeometry mesh, plus any CylinderGeometry mesh
+// using cornerRadius/hollow rounding (their radiusTop/radiusBottom aren't
+// literal units in that case and no reliable conversion formula was found --
+// see the comment in scripts/extract-scene.mjs), deduped by geometry.uuid so
+// mirrored left/right body parts aren't exported twice. Rebuilds each as a
 // plain THREE.BufferGeometry using OUR OWN three.js install (not the copy
 // bundled inside @splinetool/runtime), and exports the lot as one binary
 // glTF via GLTFExporter. scripts/extract-scene.mjs drives this page with
@@ -10,7 +13,20 @@ import { Application } from '@splinetool/runtime';
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
-const BAKED_TYPES = new Set(['SubdivGeometry', 'VectorGeometry']);
+const ALWAYS_BAKED_TYPES = new Set(['SubdivGeometry', 'VectorGeometry']);
+
+// Must match extract-scene.mjs's classifyFromData CylinderGeometry branch --
+// both decide "bake vs procedural" from the same cornerRadius/hollow check,
+// duplicated because one runs here (a real ES module) and the other inside
+// a page.evaluate() callback (must be a self-contained function, can't
+// import this file).
+function shouldBakeMesh(obj) {
+  const g = obj.data?.geometry;
+  if (!g) return false;
+  if (ALWAYS_BAKED_TYPES.has(g.type)) return true;
+  if (g.type === 'CylinderGeometry') return !!(g.cornerRadius || g.hollow);
+  return false;
+}
 
 // Exposed so scripts/extract-scene.mjs's page.evaluate can do matrix math
 // (THREE.Matrix4 multiply/decompose) without reimplementing it by hand.
@@ -31,7 +47,7 @@ app
     const seen = new Map(); // geometry.uuid -> { mesh, sourceNames: [] }
 
     function walk(obj) {
-      if (obj.isMesh && BAKED_TYPES.has(obj.data?.geometry?.type) && obj.geometry?.uuid) {
+      if (obj.isMesh && shouldBakeMesh(obj) && obj.geometry?.uuid) {
         const uuid = obj.geometry.uuid;
         if (!seen.has(uuid)) {
           seen.set(uuid, { liveGeometry: obj.geometry, originalType: obj.data.geometry.type, sourceNames: [] });

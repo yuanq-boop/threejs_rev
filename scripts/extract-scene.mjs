@@ -64,6 +64,29 @@ const description = await page.evaluate((primitiveTypesArr) => {
       };
     }
     if (type === 'CylinderGeometry') {
+      // Every cylinder in this scene has a nonzero cornerRadius, and
+      // treating radiusTop/radiusBottom as literal THREE.CylinderGeometry
+      // radii (phases 1-3's original approach) produced a collar piece
+      // roughly 2.5x too wide compared to the live compiled geometry's own
+      // bounding box. Tried to reverse-engineer the correct formula
+      // (radiusTop/Bottom as a 0-100 percentage of width/2, matching the
+      // Rectangle/Ellipse cornerRadius convention) but it fit one instance
+      // and not another, and a third instance's local bounding box isn't
+      // even circular in X/Z -- not confident enough in any formula to
+      // trust it. When cornerRadius or hollow is nonzero, MUST_BAKE_CYLINDER
+      // below routes this to the 'baked' path (same as organic geometry)
+      // instead of guessing; only a plain cornerRadius=0, hollow=0 cylinder
+      // (none exist in this scene, but might in another) uses literal
+      // THREE.CylinderGeometry radii.
+      const cornerRadius = dataGeom.cornerRadius ?? 0;
+      const hollow = dataGeom.hollow ?? 0;
+      if (cornerRadius || hollow) {
+        return {
+          kind: 'baked',
+          originalType: 'CylinderGeometry',
+          note: `cornerRadius=${cornerRadius}/hollow=${hollow} nonzero -- radiusTop/radiusBottom aren't literal units in that case and no reliable conversion formula was found, baked instead of guessed`,
+        };
+      }
       return {
         kind: 'cylinder',
         radiusTop: dataGeom.radiusTop,
@@ -74,9 +97,9 @@ const description = await page.evaluate((primitiveTypesArr) => {
         openEnded: !!dataGeom.openEnded,
         thetaStart: dataGeom.thetaStart ?? 0,
         thetaLength: dataGeom.thetaLength ?? 360,
-        cornerRadius: dataGeom.cornerRadius ?? 0,
+        cornerRadius: 0,
         cornerSegments: dataGeom.cornerSegments ?? 1,
-        hollow: dataGeom.hollow ?? 0,
+        hollow: 0,
       };
     }
     if (type === 'RectangleGeometry') {

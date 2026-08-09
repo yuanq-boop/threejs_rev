@@ -60,12 +60,26 @@ function emitGeometry(geom) {
       ctorLine += ` /* cornerRadius=${fmtNum(geom.cornerRadius)} not represented -- THREE.BoxGeometry has sharp edges, see phase notes */`;
     }
   } else if (geom.kind === 'cylinder') {
-    ident = uniqueIdent('cylinderGeometry');
     const thetaStartRad = (geom.thetaStart * Math.PI) / 180;
     const thetaLengthRad = (geom.thetaLength * Math.PI) / 180;
-    ctorLine = `new THREE.CylinderGeometry(${fmtNum(geom.radiusTop)}, ${fmtNum(geom.radiusBottom)}, ${fmtNum(geom.height)}, ${geom.radialSegments}, ${geom.heightSegments}, ${geom.openEnded}, ${fmtNum(thetaStartRad)}, ${fmtNum(thetaLengthRad)})`;
-    if (geom.cornerRadius || geom.hollow) {
-      ctorLine += ` /* cornerRadius=${fmtNum(geom.cornerRadius)}, hollow=${fmtNum(geom.hollow)} not represented, see phase notes */`;
+    if (geom.hollow > 0) {
+      // Solid CylinderGeometry would render this as a massive solid cone
+      // instead of a thin ring -- see the comment on hollowTaperedTubeGeometry.
+      ident = uniqueIdent('hollowTubeGeometry');
+      usesShapeHelpers = true;
+      ctorLine = `hollowTaperedTubeGeometry(${fmtNum(geom.radiusTop)}, ${fmtNum(geom.radiusBottom)}, ${fmtNum(geom.height)}, ${fmtNum(geom.hollow)}, ${geom.radialSegments}, ${fmtNum(thetaStartRad)}, ${fmtNum(thetaLengthRad)})`;
+      if (geom.cornerRadius) {
+        ctorLine += ` /* cornerRadius=${fmtNum(geom.cornerRadius)} not represented, see phase notes */`;
+      }
+      if (geom.openEnded) {
+        ctorLine += ` /* openEnded=true not represented -- this hollow tube is generated capped, see TODO in shape-helpers.js */`;
+      }
+    } else {
+      ident = uniqueIdent('cylinderGeometry');
+      ctorLine = `new THREE.CylinderGeometry(${fmtNum(geom.radiusTop)}, ${fmtNum(geom.radiusBottom)}, ${fmtNum(geom.height)}, ${geom.radialSegments}, ${geom.heightSegments}, ${geom.openEnded}, ${fmtNum(thetaStartRad)}, ${fmtNum(thetaLengthRad)})`;
+      if (geom.cornerRadius) {
+        ctorLine += ` /* cornerRadius=${fmtNum(geom.cornerRadius)} not represented, see phase notes */`;
+      }
     }
   } else if (geom.kind === 'rectangle') {
     ident = uniqueIdent('rectExtrudeGeometry');
@@ -247,7 +261,9 @@ const geometryDeclLines = [...geometryVars.values()].flatMap((g) => g.lines);
 
 const imports = ["import * as THREE from 'three';", "import { buildMaterials } from './build-materials.js';"];
 if (usesShapeHelpers) {
-  imports.push("import { roundedRectShape, ellipseShape } from './shape-helpers.js';");
+  imports.push(
+    "import { roundedRectShape, ellipseShape, hollowTaperedTubeGeometry } from './shape-helpers.js';"
+  );
 }
 if (usesBakedAssets) {
   imports.push("import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';");

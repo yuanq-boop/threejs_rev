@@ -43,6 +43,39 @@ export function roundedRectShape(width, height, cornerRadiusPct, cornerType) {
   return shape;
 }
 
+// Spline's CylinderGeometry has a "hollow" fraction (0-1) that THREE.
+// CylinderGeometry has no equivalent for -- ignoring it (as an earlier pass
+// here did) renders a SOLID cone/cylinder at the full outer radius instead
+// of a thin-walled tube, which for at least one real instance in this scene
+// (a radiusTop=80 "neck" ring with hollow=0.83, i.e. an 83%-empty ring only
+// ~17% wall thickness) is a massive, visually dominant difference -- it
+// rendered as a giant solid cowl instead of a slender collar ring. Built via
+// LatheGeometry: a capped tapered-tube profile (outer bottom -> outer top ->
+// inner top -> inner bottom -> back to outer bottom, closing both caps),
+// revolved around Y. openEnded (no end caps) isn't handled -- no instance in
+// this scene needs it -- see the TODO if that changes.
+export function hollowTaperedTubeGeometry(
+  radiusTop,
+  radiusBottom,
+  height,
+  hollowFraction,
+  radialSegments,
+  thetaStartRad,
+  thetaLengthRad
+) {
+  const halfHeight = height / 2;
+  const innerTop = radiusTop * hollowFraction;
+  const innerBottom = radiusBottom * hollowFraction;
+  const points = [
+    new THREE.Vector2(radiusBottom, -halfHeight),
+    new THREE.Vector2(radiusTop, halfHeight),
+    new THREE.Vector2(innerTop, halfHeight),
+    new THREE.Vector2(innerBottom, -halfHeight),
+    new THREE.Vector2(radiusBottom, -halfHeight), // TODO: skip this point (and the two end caps it implies) to support openEnded=true, unneeded so far
+  ];
+  return new THREE.LatheGeometry(points, radialSegments, thetaStartRad, thetaLengthRad);
+}
+
 // spikes = polygon point count (also doubles as star-point count when
 // innerRadiusPct > 0). innerRadiusPct is 0-100, same percentage convention
 // as cornerRadius above.
