@@ -277,10 +277,11 @@ console.log('Wrote generated/scene-description.json');
 // --- Geometry bake (same page/app instance as above, see the header
 // comment for why this can't be a separately-run script) ---
 await page.waitForFunction(() => window.__bakeReady === true, { timeout: 30000 });
-const { bakeError, base64, manifest } = await page.evaluate(() => ({
+const { bakeError, base64, manifest, imageAssets } = await page.evaluate(() => ({
   bakeError: window.__bakeError,
   base64: window.__bakedGLBBase64,
   manifest: window.__bakeManifest,
+  imageAssets: window.__imageAssets,
 }));
 
 if (bakeError) {
@@ -296,6 +297,24 @@ writeFileSync(join(outDir, 'bake-manifest.json'), JSON.stringify(manifest, null,
 const totalVerts = manifest.reduce((sum, m) => sum + m.vertexCount, 0);
 console.log(
   `Baked ${manifest.length} unique geometries (${totalVerts} total vertices) -> public/models/body.glb`
+);
+
+// --- Matcap image assets (see extractMatcapImageAssets in src/bake/main.js) ---
+mkdirSync(join(root, 'public', 'textures'), { recursive: true });
+const imageAssetManifest = {};
+for (const [key, { name, base64: imgBase64, ext }] of Object.entries(imageAssets ?? {})) {
+  // `key` is sometimes already a filename (an inline layer image's own
+  // .name, e.g. "CHROME.png") and sometimes an opaque id (a shared.images
+  // key, e.g. "matcap_roughness_3") -- only append the detected extension
+  // when key doesn't already end with a plausible one, to avoid writing
+  // "CHROME.png.png".
+  const filename = /\.(png|jpe?g)$/i.test(key) ? key : `${key}.${ext}`;
+  writeFileSync(join(root, 'public', 'textures', filename), Buffer.from(imgBase64, 'base64'));
+  imageAssetManifest[key] = { name, filename };
+}
+writeFileSync(join(outDir, 'image-assets-manifest.json'), JSON.stringify(imageAssetManifest, null, 2));
+console.log(
+  `Extracted ${Object.keys(imageAssetManifest).length} matcap image asset(s) -> public/textures/`
 );
 
 await browser.close();

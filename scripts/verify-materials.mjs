@@ -18,13 +18,36 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as THREE from 'three';
-import { buildMaterials } from '../src/generated/build-materials.js';
-import { translateMaterial } from './lib/translate-material.mjs';
+
+// build-materials.js may construct a THREE.TextureLoader for matcap
+// materials (see generate-materials.mjs); TextureLoader -> ImageLoader
+// calls document.createElementNS to build an <img>, which doesn't exist in
+// plain Node. This script only needs the resulting Texture object to exist
+// (to check e.g. .color), not the actual pixel data to load, so a minimal
+// no-op stub is enough -- must be set up before importing build-materials.js
+// triggers module-level THREE usage that could touch it indirectly, and
+// before buildMaterials() is called below.
+if (typeof globalThis.document === 'undefined') {
+  const stubElement = () => ({
+    style: {},
+    addEventListener() {},
+    removeEventListener() {},
+    setAttribute() {},
+  });
+  globalThis.document = { createElement: stubElement, createElementNS: stubElement };
+}
+
+const { buildMaterials } = await import('../src/generated/build-materials.js');
+const { translateMaterial } = await import('./lib/translate-material.mjs');
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const sourceMaterials = JSON.parse(
   readFileSync(join(root, 'generated', 'materials-description.json'), 'utf8')
 );
+const imageAssetManifest = JSON.parse(
+  readFileSync(join(root, 'generated', 'image-assets-manifest.json'), 'utf8')
+);
+const availableImageKeys = new Set(Object.keys(imageAssetManifest));
 
 const liveMaterials = buildMaterials();
 
@@ -45,7 +68,7 @@ let codegenMismatches = 0;
 const rows = [];
 
 for (const [id, mat] of Object.entries(sourceMaterials)) {
-  const recipe = translateMaterial(mat);
+  const recipe = translateMaterial(mat, availableImageKeys);
   const live = liveMaterials[id];
   if (!live) {
     codegenMismatches++;
@@ -72,6 +95,25 @@ for (const [id, mat] of Object.entries(sourceMaterials)) {
     fieldChecks.push({ field, expected: expectedStr, actual: actualStr, match });
   }
 
+  if (recipe.materialType === 'MeshMatcapMaterial') {
+    const hasMatcapTexture = !!live.matcap;
+    const isMatcapMaterial = live.type === 'MeshMatcapMaterial';
+    if (!hasMatcapTexture) codegenMismatches++;
+    if (!isMatcapMaterial) codegenMismatches++;
+    fieldChecks.push({
+      field: 'materialType',
+      expected: 'MeshMatcapMaterial',
+      actual: live.type,
+      match: isMatcapMaterial,
+    });
+    fieldChecks.push({
+      field: 'matcap texture present',
+      expected: 'true',
+      actual: String(hasMatcapTexture),
+      match: hasMatcapTexture,
+    });
+  }
+
   // Human-readable source values for the ledger, independent of what got
   // translated -- lets a reader see the raw layer data next to the result.
   const src = {
@@ -82,6 +124,7 @@ for (const [id, mat] of Object.entries(sourceMaterials)) {
     lightReflectivity: recipe.sourceLayers.lightLayer?.data.reflectivity,
     rainbowAlpha: recipe.sourceLayers.rainbowLayer?.data.alpha,
     rainbowFilmThickness: recipe.sourceLayers.rainbowLayer?.data.filmThickness,
+    matcapAssetKey: recipe.params.matcapAssetKey,
   };
 
   rows.push({ id, name: mat.name, fieldChecks, notes: recipe.notes, src });

@@ -40,10 +40,59 @@ const app = new Application(canvas, { wasmPath: '/wasm' });
 // they read from one shared load, not two independent page.goto()s.
 window.__app = app;
 
+// Extracts embedded matcap images so materials can use a real
+// THREE.MeshMatcapMaterial instead of leaving the layer untranslated. Both
+// forms exist in this file: a matcap layer's texture.image is either a
+// string key into app._data.shared.images (e.g. Spline's built-in
+// "matcap_roughness_3" preset -- confirmed embedded in the file itself, not
+// fetched from a CDN: no network request for it shows up during load), or
+// an object with the image bytes inline right on the layer (e.g. the Head
+// material's custom "CHROME.png"). Keyed the same way
+// scripts/lib/translate-material.mjs derives the key from
+// materials-description.json, so the two stay in sync without needing a
+// separate id-mapping file.
+function bytesToBase64(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+function extFromMagicBytes(bytes) {
+  if (bytes[0] === 0xff && bytes[1] === 0xd8) return 'jpg';
+  if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'png';
+  return 'bin';
+}
+function extractMatcapImageAssets(app) {
+  const sharedImages = app._data?.shared?.images ?? {};
+  const materials = app._data?.shared?.materials ?? {};
+  const assets = {};
+  for (const mat of Object.values(materials)) {
+    for (const layer of mat.layers ?? []) {
+      if (layer.data?.type !== 'matcap' || layer.data?.visible === false) continue;
+      const imageRef = layer.data.texture?.image;
+      let key, entry;
+      if (typeof imageRef === 'string') {
+        key = imageRef;
+        entry = sharedImages[imageRef];
+      } else if (imageRef?.data) {
+        key = imageRef.name || 'inline-matcap';
+        entry = imageRef;
+      }
+      if (!key || !entry?.data || assets[key]) continue;
+      assets[key] = {
+        name: entry.name,
+        base64: bytesToBase64(entry.data),
+        ext: extFromMagicBytes(entry.data),
+      };
+    }
+  }
+  return assets;
+}
+
 app
   .load('/scene.splinecode')
   .then(async () => {
     window.__splineLoaded = true;
+    window.__imageAssets = extractMatcapImageAssets(app);
     const seen = new Map(); // geometry.uuid -> { mesh, sourceNames: [] }
 
     function walk(obj) {

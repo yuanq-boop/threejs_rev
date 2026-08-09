@@ -20,12 +20,41 @@ export function shininessToRoughness(shininess) {
   return clamp(Math.sqrt(2 / (s + 2)), 0.05, 1);
 }
 
-export function translateMaterial(mat) {
+function deferredNote(l) {
+  if (l.data.type === 'rainbow') {
+    return `"rainbow" layer (alpha=${l.data.alpha}, filmThickness=${l.data.filmThickness}) not translated -- no principled mapping to Three.js's iridescence model available, see comment in translate-material.mjs`;
+  }
+  return `"${l.data.type}" layer not translated -- needs an image asset (${JSON.stringify(l.data.texture?.image ?? l.data)}), deferred to the asset pipeline`;
+}
+
+// Must compute the SAME key extractMatcapImageAssets() (src/bake/main.js)
+// used when writing public/textures/, or a resolvable matcap layer here
+// would silently fail to find its file. A matcap layer's texture.image is
+// either a string key into shared.images (Spline's built-in presets, e.g.
+// "matcap_roughness_3" -- confirmed embedded in the file, not fetched from
+// a CDN) or an object with the image bytes inline on the layer itself
+// (e.g. the Head material's custom "CHROME.png").
+export function resolveMatcapKey(layer) {
+  const imageRef = layer.data.texture?.image;
+  if (typeof imageRef === 'string') return imageRef;
+  if (imageRef?.name) return imageRef.name;
+  return null;
+}
+
+// availableImageKeys: keys (from generated/image-assets-manifest.json) that
+// scripts/extract-scene.mjs actually extracted to public/textures/. Without
+// it (e.g. verify-materials.mjs calling this before a fresh extraction),
+// every material falls back to the pre-matcap MeshPhysicalMaterial path.
+export function translateMaterial(mat, availableImageKeys = new Set()) {
   const layers = (mat.layers ?? []).filter((l) => l.data?.visible !== false);
   const notes = [];
 
   const colorLayer = [...layers].reverse().find((l) => l.data.type === 'color');
   const lightLayer = layers.find((l) => l.data.type === 'light');
+  const matcapLayer = layers.find((l) => l.data.type === 'matcap');
+  const matcapKey = matcapLayer ? resolveMatcapKey(matcapLayer) : null;
+  const matcapAvailable = matcapKey && availableImageKeys.has(matcapKey);
+
   // "rainbow" was previously mapped to MeshPhysicalMaterial's iridescence as
   // a guess (iridescence = layer alpha). Once actual geometry existed to see
   // it on, that guess produced a strong, wrong blue/purple sheen on the neck
@@ -36,7 +65,33 @@ export function translateMaterial(mat) {
   // there's no principled mapping from Spline's rainbow layer params to
   // Three's thin-film iridescence model available here, so a guessed number
   // is no better than admitting it isn't translated.
-  const deferredLayers = layers.filter((l) => ['matcap', 'texture', 'video', 'rainbow'].includes(l.data.type));
+  const deferredTypes = matcapAvailable
+    ? ['texture', 'video', 'rainbow'] // matcap itself gets translated below, not deferred
+    : ['matcap', 'texture', 'video', 'rainbow'];
+  const deferredLayers = layers.filter((l) => deferredTypes.includes(l.data.type));
+
+  if (matcapAvailable) {
+    // MeshMatcapMaterial has no roughness/metalness/PBR lighting model at
+    // all -- it's an unlit lookup into the matcap image by view-space
+    // normal. Using the "color" layer's value here would tint/darken the
+    // matcap image incorrectly (Head's color layer is near-black, which
+    // would blacken out the bright chrome highlight the matcap exists to
+    // provide); white lets the matcap image supply the actual brightness,
+    // matching what it visually reproduces in the reference.
+    const notesForDropped = [];
+    if (lightLayer) notesForDropped.push('"light" layer (roughness/metalness/reflectivity)');
+    if (colorLayer) notesForDropped.push('"color" layer');
+    return {
+      name: mat.name,
+      materialType: 'MeshMatcapMaterial',
+      params: { color: '0xffffff', matcapAssetKey: matcapKey },
+      notes: [
+        `translated as MeshMatcapMaterial using extracted matcap asset "${matcapKey}" -- MeshMatcapMaterial has no PBR model, so ${notesForDropped.join(' and ') || 'no other layers'} ${notesForDropped.length === 1 ? 'is' : 'are'} not applicable and dropped rather than approximated`,
+        ...deferredLayers.map((l) => deferredNote(l)),
+      ],
+      sourceLayers: { colorLayer, lightLayer, matcapLayer, rainbowLayer: deferredLayers.find((l) => l.data.type === 'rainbow'), deferredLayers },
+    };
+  }
 
   const params = {};
 
@@ -78,15 +133,7 @@ export function translateMaterial(mat) {
   }
 
   for (const l of deferredLayers) {
-    if (l.data.type === 'rainbow') {
-      notes.push(
-        `"rainbow" layer (alpha=${l.data.alpha}, filmThickness=${l.data.filmThickness}) not translated -- no principled mapping to Three.js's iridescence model available, see comment in translate-material.mjs`
-      );
-    } else {
-      notes.push(
-        `"${l.data.type}" layer not translated -- needs an image asset (${JSON.stringify(l.data.texture?.image ?? l.data)}), deferred to the asset pipeline`
-      );
-    }
+    notes.push(deferredNote(l));
   }
 
   const opacity = Math.min(colorLayer?.data.alpha ?? 1, lightLayer?.data.alphaOverride ?? 1);

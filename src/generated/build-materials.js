@@ -4,51 +4,51 @@
 // scripts/extract-materials.mjs resolving app._data.shared.materials).
 //
 // Each material's "color" + "light" layers translate to
-// MeshPhysicalMaterial's color/roughness/metalness/reflectivity/emissive.
-// "matcap"/"texture"/"video" layers need real image assets and are not
-// translated here (see the NOTE comments per material and phase 3).
-// "rainbow" layers are also not translated -- an earlier attempt mapped
-// them to MeshPhysicalMaterial's iridescence as a guess, but once real
-// geometry existed to see it on, that guess produced a strong, wrong blue
-// sheen where the source renders plain matte black. Dropped rather than
-// retuned; see scripts/lib/translate-material.mjs.
+// MeshPhysicalMaterial's color/roughness/metalness/reflectivity/emissive,
+// UNLESS a "matcap" layer resolved to an extracted asset in
+// public/textures/ (see generated/image-assets-manifest.json), in which
+// case a real THREE.MeshMatcapMaterial is used instead (MeshPhysicalMaterial
+// can't reproduce a matcap's lighting response, and the other layers on
+// that material -- color/light -- are dropped as inapplicable, not
+// approximated; see the NOTE comments per material).
+// "texture"/"video" layers need real image assets and are not translated
+// here. "rainbow" layers are also not translated -- an earlier attempt
+// mapped them to MeshPhysicalMaterial's iridescence as a guess, but once
+// real geometry existed to see it on, that guess produced a strong, wrong
+// blue sheen where the source renders plain matte black. Dropped rather
+// than retuned; see scripts/lib/translate-material.mjs.
 import * as THREE from 'three';
+
+const textureLoader = new THREE.TextureLoader();
 
 export function buildMaterials() {
   const materials = {};
 
   // "342265b2-6982-4c49-b670-fee0149640a3" -- "Body"
+  // NOTE: translated as MeshMatcapMaterial using extracted matcap asset "matcap_roughness_3" -- MeshMatcapMaterial has no PBR model, so "light" layer (roughness/metalness/reflectivity) and "color" layer are not applicable and dropped rather than approximated
   // NOTE: "rainbow" layer (alpha=0.2, filmThickness=7) not translated -- no principled mapping to Three.js's iridescence model available, see comment in translate-material.mjs
-  // NOTE: "matcap" layer not translated -- needs an image asset ("matcap_roughness_3"), deferred to the asset pipeline
   // NOTE: "texture" layer not translated -- needs an image asset ("image_0"), deferred to the asset pipeline
-  materials['342265b2-6982-4c49-b670-fee0149640a3'] = new THREE.MeshPhysicalMaterial({
-    color: 0x4f4f4f,
-    roughness: 0.2,
-    metalness: 0.2,
-    reflectivity: 0.2,
+  materials['342265b2-6982-4c49-b670-fee0149640a3'] = new THREE.MeshMatcapMaterial({
+    color: 0xffffff,
+    matcap: textureLoader.load('/textures/matcap_roughness_3.jpg'),
   });
 
   // "6bdc5132-7ea6-4d70-8d2b-c8849ea9973b" -- "Parts"
-  // NOTE: reflectivity=1.5 is outside Three.js's [0,1] range -- clamped
+  // NOTE: translated as MeshMatcapMaterial using extracted matcap asset "matcap_roughness_3" -- MeshMatcapMaterial has no PBR model, so "light" layer (roughness/metalness/reflectivity) and "color" layer are not applicable and dropped rather than approximated
   // NOTE: "texture" layer not translated -- needs an image asset ("a782a6a1-fa8d-4ac6-afa9-559f62307868"), deferred to the asset pipeline
-  // NOTE: "matcap" layer not translated -- needs an image asset ("matcap_roughness_3"), deferred to the asset pipeline
   // NOTE: "rainbow" layer (alpha=1, filmThickness=10) not translated -- no principled mapping to Three.js's iridescence model available, see comment in translate-material.mjs
-  materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'] = new THREE.MeshPhysicalMaterial({
-    color: 0x030303,
-    roughness: 1,
-    metalness: 1,
-    reflectivity: 1,
+  materials['6bdc5132-7ea6-4d70-8d2b-c8849ea9973b'] = new THREE.MeshMatcapMaterial({
+    color: 0xffffff,
+    matcap: textureLoader.load('/textures/matcap_roughness_3.jpg'),
   });
 
   // "ed42926e-48d3-4907-8975-3cec662ff058" -- "Head"
+  // NOTE: translated as MeshMatcapMaterial using extracted matcap asset "CHROME.png" -- MeshMatcapMaterial has no PBR model, so "light" layer (roughness/metalness/reflectivity) and "color" layer are not applicable and dropped rather than approximated
   // NOTE: "rainbow" layer (alpha=0.5, filmThickness=5) not translated -- no principled mapping to Three.js's iridescence model available, see comment in translate-material.mjs
-  // NOTE: "matcap" layer not translated -- needs an image asset ({"data":"TypedArray(Uint8Array, len=742479)","name":"CHROME.png"}), deferred to the asset pipeline
   // NOTE: "video" layer not translated -- needs an image asset ({"alpha":1,"mode":0,"isMask":false,"visible":true,"type":"video","size":[128,128],"blending":0,"axis":"z","side":0,"projection":1,"texture":{"video":{"data":"TypedArray(Uint8Array, len=472970)","thumb":"TypedArray(Uint8Array, len=7249)","type":"video","name":"Screen Recording 2024-05-08 at 10.55.22.mp4"},"wrapping":1001,"repeat":[2,2.5],"offset":[0,-0.19],"rotation":0,"minFilter":1008},"crop":true}), deferred to the asset pipeline
-  materials['ed42926e-48d3-4907-8975-3cec662ff058'] = new THREE.MeshPhysicalMaterial({
-    color: 0x000000,
-    roughness: 0.2,
-    metalness: 0.2,
-    reflectivity: 0.2,
+  materials['ed42926e-48d3-4907-8975-3cec662ff058'] = new THREE.MeshMatcapMaterial({
+    color: 0xffffff,
+    matcap: textureLoader.load('/textures/CHROME.png'),
   });
 
   // "ac839791-b0cd-406c-a276-0d8c6f6ecfd8" -- "Text"
