@@ -43,7 +43,15 @@ function fitCameraToObject(cam, object, paddingFactor = 1.1) {
   cam.updateProjectionMatrix();
 }
 
-fitCameraToObject(camera, root);
+// Fit to "Bot" (the robot body) specifically, not the whole `root`. `root`
+// also contains "logo" -- the "NEXBOT" wordmark, sitting 1000 units behind
+// the robot as background decoration -- and a bounding sphere spanning both
+// the robot AND a large flat text plane 1000 units further back forces the
+// camera much further out than the reference's actual framing, which is
+// clearly composed around the robot alone (the logo just extends past the
+// frame edges, visible or not, rather than needing to be "fit").
+const bot = root.getObjectByName('Bot') ?? root;
+fitCameraToObject(camera, bot);
 
 window.__generatedScene = scene;
 window.__generatedCamera = camera;
