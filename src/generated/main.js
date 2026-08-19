@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { buildScene } from './build-scene.js';
+import { initAnimations } from './animation-runtime.js';
 
 const canvas = document.getElementById('app');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -62,12 +63,23 @@ const skipFit = new URLSearchParams(location.search).get('fit') === '0';
 const bot = root.getObjectByName('Bot') ?? root;
 if (!skipFit) fitCameraToObject(camera, bot);
 
+// Phase 5: reproduces the source scene's arm idle-sway and head/shoulder
+// cursor-tracking (see scripts/extract-animations.mjs and
+// src/generated/animation-runtime.js for how this data was captured and
+// docs/phase5-animation-notes.md for what's exact vs. approximated). The
+// camera's own authored intro transition is only applied in raw-camera mode
+// (?fit=0) -- letting it also drive the default full-body auto-fit above
+// would mean two different systems fighting over the camera every frame.
+const updateAnimations = initAnimations({ root, camera, applyCameraTransition: skipFit });
+
 window.__generatedScene = scene;
 window.__generatedCamera = camera;
 window.__generatedLights = lights;
 window.__generatedReady = true;
 
+const clock = new THREE.Clock();
 function animate() {
+  updateAnimations(clock.getDelta());
   renderer.render(scene, camera);
   requestAnimationFrame(animate);
 }

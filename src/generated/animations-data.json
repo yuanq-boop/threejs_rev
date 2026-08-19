@@ -1,0 +1,756 @@
+[
+  {
+    "name": "Camera 2",
+    "objectType": "Camera",
+    "restPose": {
+      "position": [
+        0,
+        248.98,
+        360
+      ],
+      "rotation": [
+        0.014486,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": 0,
+            "delay": 0,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                0,
+                146.98,
+                1000
+              ],
+              "rotation": [
+                0.006996,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 0,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 3000,
+            "easing": 5
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "Top part",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        -0.184025,
+        58.94695,
+        2.035342
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [],
+    "lookAt": {
+      "dampingFactor": 50,
+      "distance": 1000,
+      "limitDistanceEnabled": false,
+      "limitDistance": 1000,
+      "resetOnPointerLeave": false,
+      "resetSpeed": 5,
+      "axis": "z",
+      "enabledRotation": [
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  {
+    "name": "Head",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        0.184025,
+        183.553801,
+        18.621848
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [],
+    "lookAt": {
+      "dampingFactor": 10,
+      "distance": 300,
+      "limitDistanceEnabled": false,
+      "limitDistance": 1000,
+      "resetOnPointerLeave": false,
+      "resetSpeed": 20,
+      "axis": "z",
+      "enabledRotation": [
+        true,
+        true,
+        true
+      ]
+    }
+  },
+  {
+    "name": "Hand LEFT",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        -40.588189,
+        98.305221,
+        -3.47071
+      ],
+      "rotation": [
+        0,
+        0,
+        0.085987
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 5000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                -40.588189,
+                98.305221,
+                -3.47071
+              ],
+              "rotation": [
+                0,
+                0,
+                0.427041
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 1000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 2000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "arm",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        24.873446,
+        7.425945,
+        2.202431
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 5000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                24.873446,
+                7.425945,
+                2.202431
+              ],
+              "rotation": [
+                -0.594927,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 1000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 4000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "elbow",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        20.541998,
+        -85.632304,
+        2.657058
+      ],
+      "rotation": [
+        0,
+        -0.142001,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 7000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                20.541998,
+                -85.632304,
+                2.657058
+              ],
+              "rotation": [
+                0,
+                0.357749,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 2000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 3000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "forearm",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        -4.789966,
+        -12.261409,
+        1.360096
+      ],
+      "rotation": [
+        0.323899,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 4000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                -4.789966,
+                -12.261409,
+                1.360096
+              ],
+              "rotation": [
+                -0.566683,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 2000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 2000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "Hand",
+    "objectType": "Mesh",
+    "restPose": {
+      "position": [
+        -9.434524,
+        -91.204258,
+        36.550164
+      ],
+      "rotation": [
+        0.280377,
+        0.938657,
+        2.475429
+      ],
+      "scale": [
+        -1.4,
+        1.4,
+        1.4
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 5000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                -9.434524,
+                -91.204258,
+                36.550164
+              ],
+              "rotation": [
+                2.2934,
+                0.35433,
+                0.620966
+              ],
+              "scale": [
+                -1.4,
+                1.4,
+                1.4
+              ]
+            },
+            "repeat": 0,
+            "delay": 5000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 1000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "Hand LEFT",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        -40.588189,
+        98.305221,
+        -3.47071
+      ],
+      "rotation": [
+        0,
+        0,
+        0.085987
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 5000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                -40.588189,
+                98.305221,
+                -3.47071
+              ],
+              "rotation": [
+                0,
+                0,
+                0.427041
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 1000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 2000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "arm",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        24.873446,
+        7.425945,
+        2.202431
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 5000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                24.873446,
+                7.425945,
+                2.202431
+              ],
+              "rotation": [
+                -0.594927,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 1000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 4000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "elbow",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        20.541998,
+        -85.632304,
+        2.657058
+      ],
+      "rotation": [
+        0,
+        -0.142001,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 7000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                20.541998,
+                -85.632304,
+                2.657058
+              ],
+              "rotation": [
+                0,
+                0.357749,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 2000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 3000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "forearm",
+    "objectType": "Group",
+    "restPose": {
+      "position": [
+        -4.789966,
+        -12.261409,
+        1.360096
+      ],
+      "rotation": [
+        0.323899,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 4000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                -4.789966,
+                -12.261409,
+                1.360096
+              ],
+              "rotation": [
+                -0.566683,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "repeat": 0,
+            "delay": 2000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 2000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  },
+  {
+    "name": "Hand",
+    "objectType": "Mesh",
+    "restPose": {
+      "position": [
+        -9.434524,
+        -91.204258,
+        36.550164
+      ],
+      "rotation": [
+        0.280377,
+        0.938657,
+        2.475429
+      ],
+      "scale": [
+        -1.4,
+        1.4,
+        1.4
+      ]
+    },
+    "transitions": [
+      {
+        "tweens": [
+          {
+            "targetPose": null,
+            "repeat": -1,
+            "delay": 5000,
+            "delayDirection": "end",
+            "direction": "pingpong-rewind",
+            "duration": 1000,
+            "easing": 4
+          },
+          {
+            "targetPose": {
+              "position": [
+                -9.434524,
+                -91.204258,
+                36.550164
+              ],
+              "rotation": [
+                2.2934,
+                0.35433,
+                0.620966
+              ],
+              "scale": [
+                -1.4,
+                1.4,
+                1.4
+              ]
+            },
+            "repeat": 0,
+            "delay": 5000,
+            "delayDirection": "start-once",
+            "direction": "normal",
+            "duration": 1000,
+            "easing": 4
+          }
+        ]
+      }
+    ],
+    "lookAt": null
+  }
+]
