@@ -14,6 +14,7 @@ import { chromium } from 'playwright';
 import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'generated', 'recordings');
@@ -74,3 +75,30 @@ for (const f of files) {
   renameSync(full, target);
 }
 console.log(`Wrote ${join('generated', 'recordings', 'animation.webm')}`);
+
+// Chromium's video recorder only writes .webm (VP8), which iOS/Safari
+// doesn't play. Transcode to H.264/AAC mp4 (baseline profile + faststart)
+// for iPhone playback when ffmpeg is available -- best-effort, not a hard
+// dependency of the rest of the pipeline.
+try {
+  execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' });
+  const mp4Target = join(outDir, 'animation.mp4');
+  execFileSync(
+    'ffmpeg',
+    [
+      '-y',
+      '-i', target,
+      '-c:v', 'libx264',
+      '-pix_fmt', 'yuv420p',
+      '-profile:v', 'baseline',
+      '-level', '3.0',
+      '-movflags', '+faststart',
+      '-c:a', 'aac',
+      mp4Target,
+    ],
+    { stdio: 'ignore' }
+  );
+  console.log(`Wrote ${join('generated', 'recordings', 'animation.mp4')} (iPhone/Safari-compatible)`);
+} catch {
+  console.log('ffmpeg not found -- skipped mp4 transcode, only animation.webm was written (not iPhone-playable).');
+}
