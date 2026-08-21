@@ -131,6 +131,23 @@ class TransitionAnimator {
 // rate by treating them as roughly "how many effective smoothing steps per
 // second", which reproduces smooth-follow-then-settle behavior without
 // claiming to match Spline's curve exactly.
+//
+// MAX_LOOK_ANGLE exists because the raw "point local +Z exactly at the
+// cursor" math has no limit of its own: measured directly, an off-center
+// cursor rotated "Top part" (the chest, a parent of the whole arm chain)
+// by over 90 degrees from rest, and "Head" by ~20. Neither object's pivot
+// sits at the joint a human would rotate it around (Spline's own rig
+// presumably keeps this bounded through something not present in the
+// exported data -- "limitDistanceEnabled" is false for both objects in this
+// scene, so it isn't a limit this data ever captured), so an unclamped
+// rotation that large visibly swings the mesh's neck/shoulder attachment
+// points away from where the pelvis/torso expects them, reading as the
+// upper body tearing off rather than tracking the cursor. Clamped to a
+// fixed cone from rest instead -- chosen for a plausible-looking tracking
+// range, not derived from any source value, since none exists to derive it
+// from.
+const MAX_LOOK_ANGLE = THREE.MathUtils.degToRad(20);
+
 class LookAtController {
   constructor(object, restPose, config) {
     this.object = object;
@@ -170,6 +187,12 @@ class LookAtController {
             'XYZ'
           )
         );
+      }
+
+      const dot = THREE.MathUtils.clamp(Math.abs(this.restQuat.dot(desiredQuat)), -1, 1);
+      const angle = 2 * Math.acos(dot);
+      if (angle > MAX_LOOK_ANGLE) {
+        desiredQuat = this.restQuat.clone().slerp(desiredQuat, MAX_LOOK_ANGLE / angle);
       }
     }
 

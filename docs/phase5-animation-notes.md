@@ -94,6 +94,26 @@ with an exponential decay derived from `dampingFactor`/`resetSpeed` --
 reproduces the qualitative behavior (smooth follow, reset when the pointer
 leaves), not a verified-exact port.
 
+**Found and fixed after actually watching the recorded video, not just
+checking numbers:** the first version of this phase computed the raw
+"point local +Z exactly at the cursor" rotation with no limit at all.
+Measured directly, an off-center cursor position rotated `Top part` (the
+chest -- a parent of the entire arm chain) by over 90 degrees from rest,
+and `Head` by about 20. Neither object's pivot sits at the joint a human
+rig would rotate it around, so a swing that large visibly dragged the
+mesh's neck/shoulder attachment points away from where the pelvis and arms
+expected them, reading as the upper body tearing itself apart rather than
+tracking the cursor -- confirmed by extracting frames from the recorded
+video (`ffmpeg -vf fps=1`) and looking at them directly; a numeric-only
+check (reading `.rotation` and confirming it was non-zero) had missed this
+entirely, which is a gap in how this phase was originally verified, not
+just a gap in the animation itself. Fixed with `MAX_LOOK_ANGLE` in
+`animation-runtime.js`: the desired rotation is clamped to a fixed cone
+(20 degrees) from rest before smoothing is applied. That angle is chosen
+for a plausible-looking tracking range, not derived from any source value
+-- `limitDistanceEnabled` is `false` for both LookAt objects in this scene,
+so nothing in the exported data bounds this at all.
+
 ## Camera: deliberately not animated by default
 
 The camera has its own authored `Start` -> `Transition` (matching the
